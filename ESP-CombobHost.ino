@@ -9,6 +9,8 @@
 #include <IRremote.h>
 #include "Logo.h"
 
+#define BUILD_NUMBER 171027
+
 //OLED
 #define OLED_SDA 4
 #define OLED_SCL 15
@@ -69,6 +71,8 @@ void setup()
     //Setup
     Serial.begin(115200);
     Serial.println("The Combobluator is now running........\n");
+    Serial.print("Build:");
+    Serial.println(BUILD_NUMBER);
     pinMode(LED_PIN, OUTPUT);
 
     //Start the access point
@@ -118,9 +122,9 @@ void setup()
         else if (error == OTA_END_ERROR)     Serial.println("End Failed");
     });
     ArduinoOTA.begin();
-      Serial.println("OTA Ready");
-      Serial.print("IP address: ");
-      Serial.println(WiFi.localIP());
+      //Serial.println("OTA Ready");
+      //Serial.print("IP address: ");
+      //Serial.println(WiFi.localIP());
     
     //Initialise the OLED screen
     pinMode(16, OUTPUT); 
@@ -189,7 +193,7 @@ void loop()
                         dataIn.toCharArray(irMessageIn, SERIAL_BUFFER_SIZE);
                         sendLttoIR(irMessageIn);      //Send to IR
                         irDataIndicator(false, ASTERISK_TX);
-                        //Serial.print("LTTO_TX: " + dataIn);
+                        Serial.println("LTTO_TX: " + dataIn);
                         dataIn = "";
                     }
                     
@@ -200,7 +204,7 @@ void loop()
                         bool shallWeClearDisplay = false;
                         if(lineNumber == 1) shallWeClearDisplay = true;             //Clear screen if Line# = 1, else don't
                         writeDisplay(dataIn, 2, CENTRE_HOR, lineNumber, shallWeClearDisplay);
-                        //Serial.print("LCD: " + dataIn);
+                        //Serial.println("LCD: " + dataIn);
                         dataIn = "";
                     }
                     else if(dataIn.startsWith("DSP",0))
