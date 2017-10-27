@@ -62,7 +62,7 @@ int             rxErrorCount = 0;
 /////////////////////////////////////////////////////////////////////////
 
 // First Commit to GitHub.
-// Definitely a WIP and probalby not even working
+// Definitely a WIP and probably not even working
 
 void setup()
 {
