@@ -33,6 +33,10 @@ void loop()
             {
                 processWiFi();
             }
+            if (receivingData == true && client.available())
+            {
+                Serial.println("\n-----------Skipped Sending Tx-----------");
+            }
         }
         
         //TCP connection has been terminated

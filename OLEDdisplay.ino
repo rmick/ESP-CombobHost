@@ -53,11 +53,9 @@ void irDataIndicator(int state, int location)
         receivingData = state;
         Serial.print   ("\n  ReceivingData = ");
         Serial.println(state);
-
-        digitalWrite(LED_PIN, !digitalRead(LED_PIN));
         
-        //if (state == true)  digitalWrite(LED_PIN, HIGH);
-        //else                digitalWrite(LED_PIN,  LOW);
+        if (state == true)  digitalWrite(LED_PIN, HIGH);
+        else                digitalWrite(LED_PIN,  LOW);
     }
     
     return;

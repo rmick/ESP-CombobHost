@@ -24,7 +24,6 @@ void processIR(decode_results *results)
             client.println(fullRxMessage);
             Serial.println(fullRxMessage);
             irDataIndicator(false, ASTERISK_RX);
-            digitalWrite(LED_PIN, LOW);
         }
         else if (results->bits == 8)
         //This is Data
@@ -107,5 +106,4 @@ void processIR(decode_results *results)
 //    client.print(results->decode_type == TYPE_LAZERTAG_BEACON ? 1 : 0);
 //    client.println();
 
-    //digitalWrite(LED_PIN, LOW);
 }

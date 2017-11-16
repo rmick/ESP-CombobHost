@@ -9,7 +9,7 @@
 #include <IRremote.h>
 #include "Logo.h"
 
-#define BUILD_NUMBER 1711.16
+#define BUILD_NUMBER 1711.17
 
 //OLED
 #define OLED_SDA 4
@@ -158,6 +158,7 @@ void setup()
     delay (3500);
     display.clearDisplay();
     writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
+    writeDisplay("v" + String(BUILD_NUMBER), 2, CENTRE_HOR, CENTRE_VER, true);
 }
 
 /////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,6 @@ long unsigned TimeSinceLastLtto= millis();
 
 void sendLttoIR(String fullDataString)
 {
-    digitalWrite(LED_PIN, LOW);
     int delimiterPosition = 0;
     const char *delimiter = ":";
 
