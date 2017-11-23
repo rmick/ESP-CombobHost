@@ -37,23 +37,13 @@ void writeDSPdisplay(int hCursor, int vCursor, String text, int fontSize, int co
     display.display();
 }
 
-
-
-
 //--------------------------------------------------------------------------------------------------
-
-
-
 
 void irDataIndicator(int state, int location)
 {
     //set the flag that stops IR Tx when receiving (via ESP_Loop).
     if (location == ASTERISK_RX)
     {
-        receivingData = state;
-        Serial.print   ("\n  ReceivingData = ");
-        Serial.println(state);
-        
         if (state == true)  digitalWrite(LED_PIN, HIGH);
         else                digitalWrite(LED_PIN,  LOW);
     }

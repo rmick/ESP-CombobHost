@@ -9,7 +9,7 @@
 #include <IRremote.h>
 #include "Logo.h"
 
-#define BUILD_NUMBER 1711.17
+#define BUILD_NUMBER 1711.23
 
 //OLED
 #define OLED_SDA 4
@@ -62,6 +62,8 @@ String          fullRxMessage = "";
 byte            rxCalculatedCheckSum = 0;
 int             rxErrorCount = 0;
 bool            receivingData = false;
+unsigned long   rxTimer = millis();
+unsigned long   rxTimeOutInterval = 1200;
 
 /////////////////////////////////////////////////////////////////////////
 

@@ -38,9 +38,9 @@
 
     case 'C':
         _msgLength = 9;
-        _interDelay = 0;
-        message = _checkSumCalc;           // Overwrite the message with the calculated checksum
-        message = message | 256;          //  Set the required 9th MSB bit to 1 to indicate it is a checksum
+        _interDelay = 0;                    // Set to Zero, otherwise Rx misses messages.
+        message = _checkSumCalc;            // Overwrite the message with the calculated checksum
+        message = message | 256;            // Set the required 9th MSB bit to 1 to indicate it is a checksum
         PulseIR(3);
         delayMicroseconds (6000);
         PulseIR(3);
@@ -75,16 +75,16 @@
 
     delay(_interDelay);
 
-    Serial.print(F("\tIR- "));
-    Serial.print(type);
-    Serial.print(F(" - "));
-    Serial.print(message, DEC);
-    Serial.print(" -\t");
-    long unsigned CurrentTime = millis();
-    Serial.print(CurrentTime-TimeSinceLast);
-    Serial.println("mS");
+//    Serial.print(F("\tIR- "));
+//    Serial.print(type);
+//    Serial.print(F(" - "));
+//    Serial.print(message, DEC);
+//    Serial.print(" -\t");
+//    long unsigned CurrentTime = millis();
+//    Serial.print(CurrentTime-TimeSinceLast);
+//    Serial.println("mS");
     TimeSinceLast = millis();
-    if (type == 'C') Serial.println("\n--------------------------");
+//    if (type == 'C') Serial.println("\n--------------------------");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

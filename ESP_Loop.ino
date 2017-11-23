@@ -3,13 +3,8 @@ void loop()
 {
     //ArduinoOTA.handle();
 
-    //Debug Test button
-    if (digitalRead(0) == LOW)
-    {
-        IRcontrol('T', 0);
-        delay(250);
-        return;
-    }
+    //WARNING............
+        // Dont put any code here, as it will not run if connected to Wifi.
     
     //Listen for client messages
     client = server.available(); 
@@ -21,6 +16,11 @@ void loop()
         //TCP connection established           
         while (client.connected()) 
         {          
+//THIS IS THE REAL MAIN LOOP
+ 
+            //Debug Test button
+            if (digitalRead(0) == LOW)  receivingData = false;
+            
             //Check for any IR messages received and action them
             if (lazerTagReceive.decode(&results))
             {
@@ -29,19 +29,28 @@ void loop()
             }
 
             //Check for any WiFi messages received and action them
-            if (receivingData == false && client.available())
+            if      (receivingData == false && client.available())
             {
                 processWiFi();
             }
-            if (receivingData == true && client.available())
+            
+            else if (receivingData == true)  // && client.available())
             {
-                Serial.println("\n-----------Skipped Sending Tx-----------");
+                //TODO: Add a timer and reset if taking too long.
+               if ((millis() - rxTimer) > rxTimeOutInterval)
+               {
+                    receivingData = false;
+                    Serial.println("RxTimer reset");
+                    Serial.println(fullRxMessage);
+                    client.println("START");  //required to release the STOP command.
+                    digitalWrite(LED_PIN, LOW);
+               }
             }
         }
-        
         //TCP connection has been terminated
+
         digitalWrite(LED_PIN, LOW);
         Serial.println("\n\tDisconnected");
-        writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);  
+        writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
     }
 }

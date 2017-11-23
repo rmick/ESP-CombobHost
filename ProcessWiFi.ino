@@ -3,6 +3,13 @@ unsigned long elapsedIRtime = millis();
 void processWiFi()
 {   
     char tcpChar = client.read();
+
+    if(receivingData)
+    {
+        //dataIn = "";
+        //return;
+    }
+    
     if (tcpChar == '\n')
     {
         if      (dataIn.startsWith("CMD 10", 0))
@@ -20,8 +27,8 @@ void processWiFi()
             Serial.println("\nLTTO_TX: " + dataIn);
             elapsedIRtime = millis();
             sendLttoIR(dataIn);      //Send to IR
-            Serial.print("Elapsed Time = ");
-            Serial.println(millis()-elapsedIRtime);
+            //Serial.print("Elapsed Time = ");
+            //Serial.println(millis()-elapsedIRtime);
             dataIn = "";
             irDataIndicator(false, ASTERISK_TX);
         }
