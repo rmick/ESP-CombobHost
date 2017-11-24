@@ -7,7 +7,7 @@ void processIR(decode_results *results)
         if      ( (results->bits == 9) && (results->value < 256) )
         // This is a Packet header
         {
-            client.println("STOP");
+            //client.println("STOP");
             setIrReceivingState(true);
             fullRxMessage = "P";
             fullRxMessage += String(results->value);
@@ -40,21 +40,18 @@ void processIR(decode_results *results)
         }        
         else if (results->bits == 7)
         //This is a Tag
-        {
-            //TODO: DEBUG this is currently not working
-            
-            //setIrReceivingState(true);
-            //irDataIndicator(true, ASTERISK_RX);
-            //fullRxMessage = "T";
-            fullRxMessage = ",T";
+        {   
+            setIrReceivingState(true);
+            irDataIndicator(true, ASTERISK_RX);
+            fullRxMessage = "T";
             fullRxMessage += String(results->value);
-            //fullRxMessage += ",@";
-            //client.println(fullRxMessage);
-            //Serial.println(fullRxMessage);
-            //fullRxMessage = "";
-            //irDataIndicator(false, ASTERISK_RX);
-            //setIrReceivingState(false);
-            //fullRxMessage = "";
+            fullRxMessage += ",@";
+            client.println(fullRxMessage);
+            Serial.println(fullRxMessage);
+            fullRxMessage = "";
+            irDataIndicator(false, ASTERISK_RX);
+            setIrReceivingState(false);
+            fullRxMessage = "";
         }
     }
     else if (results->address == TYPE_LAZERTAG_BEACON)
@@ -106,27 +103,6 @@ void processIR(decode_results *results)
         setIrReceivingState(false);
         return;
     }
-
-    //Serial.println(millis() - rxTimer);
-//    if( (results->bits == 9) && (results->value < 256) ) Serial.print("\n");
-//    //digitalWrite(13, !digitalRead(13));
-//    Serial.print("\tData received = ");
-//    Serial.print(results->value, DEC);
-//    Serial.print(" ");
-//    Serial.print(results->bits, DEC);
-//    Serial.print(" ");
-//    Serial.print(results->address == TYPE_LAZERTAG_BEACON ? 1 : 0);
-//    Serial.println();
-//    if( (results->bits == 9) && (results->value > 256) ) Serial.println("\t__________________\n");
-//
-//    client.print("RCV ");
-//    client.print(results->value, HEX);
-//    client.print(" ");
-//    client.print(results->bits, HEX);
-//    client.print(" ");
-//    client.print(results->decode_type == TYPE_LAZERTAG_BEACON ? 1 : 0);
-//    client.println();
-
 }
 
 void setIrReceivingState (bool state)

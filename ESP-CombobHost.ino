@@ -9,7 +9,7 @@
 #include <IRremote.h>
 #include "Logo.h"
 
-#define BUILD_NUMBER 1711.24
+#define BUILD_NUMBER 1711.25
 
 //OLED
 #define OLED_SDA 4
