@@ -23,7 +23,7 @@ void processWiFi()
             {
                 if(dataIn.startsWith("ltto:P02") || dataIn.startsWith("ltto:P49") )
                 {
-                      Serial.println("Dumping Pxx packet");
+                    Serial.println("Dumping Pxx packet");
                     dataIn = "";
                     return;
                 }

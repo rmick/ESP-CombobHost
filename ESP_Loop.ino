@@ -48,9 +48,17 @@ void loop()
             }
         }
         //TCP connection has been terminated
-
         digitalWrite(LED_PIN, LOW);
         Serial.println("\n\tDisconnected");
         writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
     }
+    //We are now in the Offline loop
+        
+    if (lazerTagReceive.decode(&results))
+    {
+        processIR(&results);
+        lazerTagReceive.resume();
+    }
+    display.clearDisplay();
+    display.display();
 }

@@ -48,6 +48,9 @@ void processIR(decode_results *results)
             fullRxMessage += ",@";
             client.println(fullRxMessage);
             Serial.println(fullRxMessage);
+////
+    writeDisplay(fullRxMessage, 2, CENTRE_HOR, CENTRE_VER, true);
+////            
             fullRxMessage = "";
             irDataIndicator(false, ASTERISK_RX);
             setIrReceivingState(false);
@@ -66,8 +69,10 @@ void processIR(decode_results *results)
             fullRxMessage += String(results->value);
             fullRxMessage += ",@";
             client.println(fullRxMessage);
-            Serial.println(fullRxMessage);
-            //fullRxMessage = "";
+            Serial.println(fullRxMessage);       
+/////
+     writeDisplay(fullRxMessage, 2, CENTRE_HOR, CENTRE_VER, true);
+/////        
             irDataIndicator(false, ASTERISK_RX);
             setIrReceivingState(false);
             fullRxMessage = "";
