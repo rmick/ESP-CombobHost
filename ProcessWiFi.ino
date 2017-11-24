@@ -24,6 +24,12 @@ void processWiFi()
         else if (dataIn.startsWith("ltto"))
         {
             irDataIndicator(true, ASTERISK_TX);
+            if (receivingData == true && dataIn.startsWith("ltto:P02"))
+            {
+                Serial.print("Dumping P02 packet");
+                dataIn = "";
+                return;
+            }
             Serial.println("\nLTTO_TX: " + dataIn);
             elapsedIRtime = millis();
             sendLttoIR(dataIn);      //Send to IR

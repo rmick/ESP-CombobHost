@@ -28,6 +28,12 @@ void sendLttoIR(String fullDataString)
         uint16_t data = fullDataString.substring(0,delimiterPosition).toInt();
         fullDataString.remove(0, delimiterPosition + 1);
 
+        if(receivingData == true)
+        {
+            if (packetType == 'P' && data == 02)
+            fullDataString == "";
+            return;
+        }
 //        Serial.print("\nSending IR:");
 //        Serial.print(packetType);
 //        Serial.print(data);
