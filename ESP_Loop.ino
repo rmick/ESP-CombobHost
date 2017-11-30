@@ -17,9 +17,6 @@ void loop()
         while (client.connected()) 
         {          
 //THIS IS THE REAL MAIN LOOP
- 
-            //Debug Test button
-            if (digitalRead(0) == LOW)  receivingData = false;
             
             //Check for any IR messages received and action them
             if (lazerTagReceive.decode(&results))
@@ -29,20 +26,19 @@ void loop()
             }
 
             //Check for any WiFi messages received and action them
-            if      (receivingData == false && client.available())
+            if (receivingData == false && client.available())
             {
                 processWiFi();
             }
             
-            else if (receivingData == true)  // && client.available())
+            else if (receivingData == true)
             {
-                //TODO: Add a timer and reset if taking too long.
                if ((millis() - rxTimer) > rxTimeOutInterval)
                {
                     receivingData = false;
+                    //expectingReply = false;
                     Serial.println("RxTimer reset");
                     Serial.println(fullRxMessage);
-                    client.println("START");  //required to release the STOP command.
                     digitalWrite(LED_PIN, LOW);
                }
             }
@@ -53,12 +49,14 @@ void loop()
         writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
     }
     //We are now in the Offline loop
-        
-    if (lazerTagReceive.decode(&results))
-    {
-        processIR(&results);
-        lazerTagReceive.resume();
-    }
-    display.clearDisplay();
-    display.display();
-}
+
+    #ifdef DEBUG_LOCAL
+        if (lazerTagReceive.decode(&results))
+        {
+            processIR(&results);
+            lazerTagReceive.resume();
+        }
+        display.clearDisplay();
+        display.display()
+    #endif
+;}

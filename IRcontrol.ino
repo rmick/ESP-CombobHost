@@ -116,21 +116,6 @@ void Interruptor()
     if (--timeOutCount = 0) ledcWrite (1,0);
 }
 
-//void PulseIR(byte _mSec)
-//{
-//    unsigned long _pulseStartTime = micros();
-//    unsigned long _pulseLength = _mSec*1000;
-//    unsigned long _pulseEndTime = _pulseStartTime + _pulseLength - 24;
-//
-//    while (_pulseEndTime >micros() )
-//    {
-//        digitalWrite(TX_PIN, HIGH);
-//        delayMicroseconds(12);
-//        digitalWrite(TX_PIN, LOW);
-//        delayMicroseconds(12);
-//    }
-//}
-
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 

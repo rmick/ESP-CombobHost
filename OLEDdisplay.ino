@@ -1,5 +1,7 @@
 void writeDisplay(String text, int fontSize, int alignment, int lineNumber, bool erase)
 {
+    if(receivingData == true) return;
+    
     if (erase) display.clearDisplay();
     display.setTextSize(fontSize);
     display.setTextColor(WHITE, BLACK);
@@ -28,6 +30,8 @@ void writeDisplay(String text, int fontSize, int alignment, int lineNumber, bool
 
 void writeDSPdisplay(int hCursor, int vCursor, String text, int fontSize, int colour, bool clearDsp)
 {
+    if(receivingData == true) return;
+    
     if (clearDsp) display.clearDisplay();
     display.display();
     display.setCursor(hCursor, vCursor);

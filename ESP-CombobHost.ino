@@ -9,8 +9,9 @@
 #include <IRremote.h>
 #include "Logo.h"
 
-//#define BUILD_NUMBER 1711.25
-#define BUILD_NUMBER 42.42
+#define BUILD_NUMBER 1711.30
+#define DEBUG_LOCAL
+
 
 //OLED
 #define OLED_SDA 4
@@ -65,7 +66,6 @@ int             rxErrorCount = 0;
 bool            receivingData = false;
 unsigned long   rxTimer = millis();
 unsigned long   rxTimeOutInterval = 1200;
-
 /////////////////////////////////////////////////////////////////////////
 
 void setup()

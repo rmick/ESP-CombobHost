@@ -28,13 +28,13 @@ void sendLttoIR(String fullDataString)
         uint16_t data = fullDataString.substring(0,delimiterPosition).toInt();
         fullDataString.remove(0, delimiterPosition + 1);
         
-//        Serial.print("\nSending IR:");
+//        Serial.print("\nSendLTTO_Sending IR:");
 //        Serial.print(packetType);
 //        Serial.print(data);
 //        Serial.print("  -\t");
 //        Serial.println(fullDataString);
-        
-        if(packetType == 'C') fullDataString = "";
+//        
+//        if(packetType == 'C') fullDataString = "";
 
     long unsigned sendLttoTime = millis();
 //    Serial.print("\t");

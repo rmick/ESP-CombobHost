@@ -3,6 +3,12 @@ unsigned long elapsedIRtime = millis();
 void processWiFi()
 {   
     char tcpChar = client.read();
+
+    if(receivingData)
+    {
+        //dataIn = "";
+        //return;
+    }
     
     if (tcpChar == '\n')
     {
@@ -18,15 +24,11 @@ void processWiFi()
         else if (dataIn.startsWith("ltto"))
         {
             irDataIndicator(true, ASTERISK_TX);
-            //Dump any AnnounceGame packets if the tagger is talking
-            if (receivingData == true)
+            if (receivingData == true && dataIn.startsWith("ltto:P02"))
             {
-                if(dataIn.startsWith("ltto:P02") || dataIn.startsWith("ltto:P49") )
-                {
-                    Serial.println("Dumping Pxx packet");
-                    dataIn = "";
-                    return;
-                }
+                Serial.print("Dumping P02 packet");
+                dataIn = "";
+                return;
             }
             Serial.println("\nLTTO_TX: " + dataIn);
             elapsedIRtime = millis();
