@@ -22,9 +22,7 @@ void loop()
             //Check for any IR messages received and action them
             if (lazerTagReceive.decode(&results))
             {
-                //DEBUG
-                HowLong(STOP);
-                
+                setIrReceivingState(true);
                 processIR(&results);
                 lazerTagReceive.resume();
             }

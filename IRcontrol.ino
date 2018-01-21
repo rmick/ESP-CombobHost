@@ -70,7 +70,7 @@
         PulseIR(bitRead(message, bitCount)+1);        // the +1 is to convert 0/1 data into 1/2mS pulses.
     }
     
- //lazerTagReceive.resume();
+    lazerTagReceive.resume();
     
     if(type != 'C') delay(_interDelay);
 }

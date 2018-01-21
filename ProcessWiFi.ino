@@ -1,15 +1,7 @@
-unsigned long elapsedIRtime = millis();
 
 void processWiFi()
 {   
     char tcpChar = client.read();
-
-    if(receivingData)
-    {
-        Serial.print("ProcessWiFi skipped - Receiving IR data");
-        //dataIn = "";
-        //return;
-    }
     
     if (tcpChar == '\n')
     {
@@ -24,7 +16,6 @@ void processWiFi()
         
         else if (dataIn.startsWith("ltto"))
         {
-            irDataIndicator(true, ASTERISK_TX);
             if (receivingData == true && dataIn.startsWith("ltto:P02"))
             {
                 Serial.print("Dumping P02 packet");
@@ -32,12 +23,8 @@ void processWiFi()
                 return;
             }
             Serial.println("\nLTTO_TX: " + dataIn);
-            elapsedIRtime = millis();
             sendLttoIR(dataIn);      //Send to IR
-            //Serial.print("Elapsed Time = ");
-            //Serial.println(millis()-elapsedIRtime);
             dataIn = "";
-            irDataIndicator(false, ASTERISK_TX);
         }
         
         else if (dataIn.startsWith("TXT", 0))
@@ -81,8 +68,6 @@ void processWiFi()
         }
         else 
         {
-            Serial.print("\n\tInvalid WiFi Data: ");
-            Serial.println(dataIn);
             dataIn = "";
         }
     }

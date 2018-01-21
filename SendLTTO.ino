@@ -1,4 +1,3 @@
-long unsigned TimeSinceLastLtto= millis();
 
 void sendLttoIR(String fullDataString)
 {
@@ -31,9 +30,4 @@ void sendLttoIR(String fullDataString)
         lazerTagSend.enableIROut(38);    
         IRcontrol(packetType, data);
     }
-    //DEBUG
-    HowLong(START);
-        
-    lazerTagReceive.enableIRIn();
-    lazerTagReceive.resume();
 }

@@ -9,7 +9,7 @@
 #include <IRremote.h>
 #include "Logo.h"
 
-#define BUILD_NUMBER 1801.19
+#define BUILD_NUMBER 1801.21
 //#define DEBUG_LOCAL
 
 
@@ -81,7 +81,7 @@ unsigned long   rxTimeOutInterval = 1200;
 void setup()
 {
     //Setup
-    Serial.begin(250000);
+    Serial.begin(115200);
     delay(100);
     Serial.println("\n");
     Serial.println("The Combobluator is now running........\n");
@@ -104,10 +104,6 @@ void setup()
     lazerTagReceive.resume();
     pinMode(TX_PIN, OUTPUT);
     void processSignature(decode_results *results);
-
-    //Setup Button for testing
-    pinMode(0, INPUT);
-
 
     //LED cWrite Setup
     int freq = 38000;
@@ -172,10 +168,6 @@ void setup()
     pinMode(RED_LED,    INPUT_PULLUP);
     pinMode(GREEN_LED,  INPUT_PULLDOWN);    
     pinMode(BLUE_LED,   INPUT_PULLUP);
-
-    digitalWrite(RED_LED,   OUTPUT);
-    digitalWrite(GREEN_LED, INPUT_PULLDOWN);
-    digitalWrite(BLUE_LED,  INPUT_PULLUP);
     
     // Splash the Logo
     display.clearDisplay();
@@ -186,7 +178,7 @@ void setup()
      writeDisplay("v" + String(BUILD_NUMBER), 2, CENTRE_HOR, CENTRE_VER, true);
    #ifdef DEBUG_LOCAL
     delay(1500);  
-    writeDisplay("DeBugv", 2, CENTRE_HOR, 4, false);
+    writeDisplay("DeBugBuild", 2, CENTRE_HOR, 4, false);
    #endif
     delay(1500);
     writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
