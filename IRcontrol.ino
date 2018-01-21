@@ -69,22 +69,10 @@
         delayMicroseconds (2000);
         PulseIR(bitRead(message, bitCount)+1);        // the +1 is to convert 0/1 data into 1/2mS pulses.
     }
-
-    lazerTagReceive.enableIRIn();
-    lazerTagReceive.resume();
-
-    delay(_interDelay);
-
-//    Serial.print(F("\tIR- "));
-//    Serial.print(type);
-//    Serial.print(F(" - "));
-//    Serial.print(message, DEC);
-//    Serial.print(" -\t");
-//    long unsigned CurrentTime = millis();
-//    Serial.print(CurrentTime-TimeSinceLast);
-//    Serial.println("mS");
-    TimeSinceLast = millis();
-//    if (type == 'C') Serial.println("\n--------------------------");
+    
+ //lazerTagReceive.resume();
+    
+    if(type != 'C') delay(_interDelay);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

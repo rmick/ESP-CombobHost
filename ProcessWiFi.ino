@@ -6,6 +6,7 @@ void processWiFi()
 
     if(receivingData)
     {
+        Serial.print("ProcessWiFi skipped - Receiving IR data");
         //dataIn = "";
         //return;
     }
@@ -80,8 +81,8 @@ void processWiFi()
         }
         else 
         {
-            Serial.print("\nRaw Data: ");
-            Serial.print(dataIn);
+            Serial.print("\n\tInvalid WiFi Data: ");
+            Serial.println(dataIn);
             dataIn = "";
         }
     }

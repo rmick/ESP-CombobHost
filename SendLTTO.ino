@@ -28,26 +28,12 @@ void sendLttoIR(String fullDataString)
         uint16_t data = fullDataString.substring(0,delimiterPosition).toInt();
         fullDataString.remove(0, delimiterPosition + 1);
         
-//        Serial.print("\nSendLTTO_Sending IR:");
-//        Serial.print(packetType);
-//        Serial.print(data);
-//        Serial.print("  -\t");
-//        Serial.println(fullDataString);
-//        
-//        if(packetType == 'C') fullDataString = "";
-
-    long unsigned sendLttoTime = millis();
-//    Serial.print("\t");
-//    Serial.print(sendLttoTime-TimeSinceLastLtto);
-//    Serial.println("mS");
-    TimeSinceLastLtto = millis();
-        
         lazerTagSend.enableIROut(38);    
         IRcontrol(packetType, data);
-
-        lazerTagReceive.enableIRIn();
-        lazerTagReceive.resume();     
-    }    
-    //lazerTagReceive.enableIRIn();
-    //lazerTagReceive.resume();
+    }
+    //DEBUG
+    HowLong(START);
+        
+    lazerTagReceive.enableIRIn();
+    lazerTagReceive.resume();
 }

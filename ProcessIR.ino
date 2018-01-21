@@ -1,13 +1,16 @@
 
 void processIR(decode_results *results)
 {
+    
     if (results->address == TYPE_LAZERTAG_TAG)
     // These are Tags, Packets, Data and Checksums
     {   
         if      ( (results->bits == 9) && (results->value < 256) )
         // This is a Packet header
         {
-            client.println("STOP");
+//TODO: Do I need this line?            
+client.println("STOP");
+
             setIrReceivingState(true);
             fullRxMessage = "P";
             fullRxMessage += String(results->value);
@@ -21,9 +24,9 @@ void processIR(decode_results *results)
             fullRxMessage += String(results->value);
             fullRxMessage += ",@";
             rxCalculatedCheckSum = rxCalculatedCheckSum%256;
-            if ((rxCalculatedCheckSum) != results->value%256)    Serial.println("\tBAD Checksum !!!");
-            client.println(fullRxMessage);
+            //if ((rxCalculatedCheckSum) != results->value%256)    Serial.println("\tBAD Checksum !!!");
             Serial.println(fullRxMessage);
+            client.println(fullRxMessage);
             irDataIndicator(false, ASTERISK_RX);
             setIrReceivingState(false);
             fullRxMessage = "";
@@ -43,11 +46,17 @@ void processIR(decode_results *results)
             fullRxMessage = "T";
             fullRxMessage += String(results->value);
             fullRxMessage += ",@";
-            client.println(fullRxMessage);
             Serial.println(fullRxMessage);
+            client.println(fullRxMessage);
             irDataIndicator(false, ASTERISK_RX);
             setIrReceivingState(false);
             fullRxMessage = "";
+        }
+        else
+        {
+            Serial.print("\n\tMISSED Packet = ");
+            Serial.print(results->address);
+            Serial.print(results->value);
         }
     }
     else if (results->address == TYPE_LAZERTAG_BEACON)
@@ -61,8 +70,8 @@ void processIR(decode_results *results)
             fullRxMessage = "B";
             fullRxMessage += String(results->value);
             fullRxMessage += ",@";
+            Serial.println(fullRxMessage);
             client.println(fullRxMessage);
-            Serial.println(fullRxMessage);         
             irDataIndicator(false, ASTERISK_RX);
             setIrReceivingState(false);
             fullRxMessage = "";
@@ -75,8 +84,8 @@ void processIR(decode_results *results)
             fullRxMessage = "E";
             fullRxMessage += String(results->value);
             fullRxMessage += ",@";
-            client.println(fullRxMessage);
             Serial.println(fullRxMessage);
+            client.println(fullRxMessage);
             fullRxMessage = "";
             irDataIndicator(false, ASTERISK_RX);
             setIrReceivingState(false);
@@ -104,12 +113,10 @@ void setIrReceivingState (bool state)
 {
         rxTimer = millis();
         receivingData = state;
-        //if (state == true)  expectingReply = true;
         Serial.print("\tReceivingData = ");
         Serial.println(state);
         if (state == false)
         {
-            Serial.println(fullRxMessage);
             digitalWrite(LED_PIN, LOW);
         }
 

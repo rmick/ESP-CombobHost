@@ -1,6 +1,9 @@
 void writeDisplay(String text, int fontSize, int alignment, int lineNumber, bool erase)
 {
     if(receivingData == true) return;
+
+    Serial.print("LCD_WRITE: ");
+    Serial.println(text);
     
     if (erase) display.clearDisplay();
     display.setTextSize(fontSize);
@@ -22,7 +25,6 @@ void writeDisplay(String text, int fontSize, int alignment, int lineNumber, bool
             hCursor = 128 - (numChars*(fontSize * CHAR_WIDTH));
             break;
     }
-    
     display.setCursor(hCursor, vCursor);
     display.println(text);
     display.display();
@@ -31,6 +33,9 @@ void writeDisplay(String text, int fontSize, int alignment, int lineNumber, bool
 void writeDSPdisplay(int hCursor, int vCursor, String text, int fontSize, int colour, bool clearDsp)
 {
     if(receivingData == true) return;
+
+    Serial.print("LCD_WRITE: ");
+    Serial.println(text);
     
     if (clearDsp) display.clearDisplay();
     display.display();
@@ -51,8 +56,12 @@ void irDataIndicator(int state, int location)
         if (state == true)  digitalWrite(LED_PIN, HIGH);
         else                digitalWrite(LED_PIN,  LOW);
     }
-    
+
+    //TODO: Remove this return, as it is debug only
     return;
+    
+
+
 
     //TODO: Move this the other CPU core, as it takes too long and blocks the IR Tx/Rx code from working correctly.
     

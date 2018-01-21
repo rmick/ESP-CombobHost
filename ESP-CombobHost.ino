@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <SPI.h>
 #include <Wire.h>
-#include <ESPmDNS.h>
+//#include <ESPmDNS.h>
 #include <WiFiUdp.h>
 //#include <ArduinoOTA.h>
 #include <Adafruit_GFX.h>
@@ -9,8 +9,8 @@
 #include <IRremote.h>
 #include "Logo.h"
 
-#define BUILD_NUMBER 1711.30
-#define DEBUG_LOCAL
+#define BUILD_NUMBER 1801.19
+//#define DEBUG_LOCAL
 
 
 //OLED
@@ -36,6 +36,12 @@ bool            txIndicatorOn       = false;
 int             vCursor             = 0;
 int             hCursor             = 0;
 
+//debug
+#define         START               1
+#define         STOP                0
+unsigned long   howLongDidThisTake  = micros();
+bool            processingMessage    = false;
+
 //Display constants
 #define     LEFT_HOR                11
 #define     CENTRE_HOR              12
@@ -51,8 +57,7 @@ int             hCursor             = 0;
 #define     TYPE_LAZERTAG_BEACON    6000
 #define     TYPE_LAZERTAG_TAG       3000
 #define     RECEIVE_PIN             17
-#define     TX_PIN                  5
-
+#define     TX_PIN                  14
 
 IRrecv          lazerTagReceive(RECEIVE_PIN);
 IRsend          lazerTagSend;
@@ -66,6 +71,11 @@ int             rxErrorCount = 0;
 bool            receivingData = false;
 unsigned long   rxTimer = millis();
 unsigned long   rxTimeOutInterval = 1200;
+
+//Combobualtor Hardware
+#define     RED_LED                 32
+#define     GREEN_LED               33
+#define     BLUE_LED                36
 /////////////////////////////////////////////////////////////////////////
 
 void setup()
@@ -77,8 +87,12 @@ void setup()
     Serial.println("The Combobluator is now running........\n");
     Serial.print("Build:");
     Serial.println(BUILD_NUMBER);
+   #ifdef DEBUG_LOCAL
+    Serial.println("DeBug Build");
+   #endif 
     Serial.println("\n");
     pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
 
     //Start the access point
     WiFi.softAP(ssid, password);
@@ -154,14 +168,28 @@ void setup()
     display.begin(SH1106_SWITCHCAPVCC, 0x3C);   // initialize with the I2C addr 0x3C
     display.setTextColor(WHITE, BLACK);
 
+    //Initiliase the Combobulator Hardware
+    pinMode(RED_LED,    INPUT_PULLUP);
+    pinMode(GREEN_LED,  INPUT_PULLDOWN);    
+    pinMode(BLUE_LED,   INPUT_PULLUP);
+
+    digitalWrite(RED_LED,   OUTPUT);
+    digitalWrite(GREEN_LED, INPUT_PULLDOWN);
+    digitalWrite(BLUE_LED,  INPUT_PULLUP);
+    
     // Splash the Logo
     display.clearDisplay();
     display.drawXBitmap(0, 0, CombobulatorLogo, 128, 64, WHITE);
     display.display();
     delay (3500);
     display.clearDisplay();
+     writeDisplay("v" + String(BUILD_NUMBER), 2, CENTRE_HOR, CENTRE_VER, true);
+   #ifdef DEBUG_LOCAL
+    delay(1500);  
+    writeDisplay("DeBugv", 2, CENTRE_HOR, 4, false);
+   #endif
+    delay(1500);
     writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
-    writeDisplay("v" + String(BUILD_NUMBER), 2, CENTRE_HOR, CENTRE_VER, true);
 }
 
 /////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@ void loop()
     if (client) 
     {
         Serial.println("Connected");
+
         writeDisplay("Online", 2, CENTRE_HOR, CENTRE_VER, true);
 
         //TCP connection established           
@@ -21,6 +22,9 @@ void loop()
             //Check for any IR messages received and action them
             if (lazerTagReceive.decode(&results))
             {
+                //DEBUG
+                HowLong(STOP);
+                
                 processIR(&results);
                 lazerTagReceive.resume();
             }
@@ -36,7 +40,6 @@ void loop()
                if ((millis() - rxTimer) > rxTimeOutInterval)
                {
                     receivingData = false;
-                    //expectingReply = false;
                     Serial.println("RxTimer reset");
                     Serial.println(fullRxMessage);
                     digitalWrite(LED_PIN, LOW);
