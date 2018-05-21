@@ -1,3 +1,8 @@
+const char  PACKET      = 'P';
+const char  DATA        = 'D';
+const char  CHECKSUM    = 'C';
+const char  TAG         = 'T';
+const char  BEACON      = 'Z';    
 
 void processIR(decode_results *results)
 {
@@ -56,7 +61,7 @@ void processIR(decode_results *results)
         if      (results->bits == 5)
         //LTTO Beacon
         {
-            fullRxMessage = "B";
+            fullRxMessage = "Z";
             fullRxMessage += String(results->value);
             fullRxMessage += ",@";
             Serial.println(fullRxMessage);

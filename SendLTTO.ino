@@ -27,7 +27,7 @@ void sendLttoIR(String fullDataString)
         uint16_t data = fullDataString.substring(0,delimiterPosition).toInt();
         fullDataString.remove(0, delimiterPosition + 1);
         
-        lazerTagSend.enableIROut(38);    
+        //lazerTagSend.enableIROut(38);    
         IRcontrol(packetType, data);
     }
 }

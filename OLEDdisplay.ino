@@ -2,8 +2,8 @@ void writeDisplay(String text, int fontSize, int alignment, int lineNumber, bool
 {
     if(receivingData == true) return;
 
-    Serial.print("LCD_WRITE: ");
-    Serial.println(text);
+    //Serial.print("LCD_WRITE: ");
+    //Serial.println(text);
     
     if (erase) display.clearDisplay();
     display.setTextSize(fontSize);

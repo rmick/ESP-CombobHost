@@ -61,7 +61,7 @@ void sendLazerSwarmIR(char line[])
             if      (bitCount ==9 && data < 256)    packetType = 'P';
             else if (bitCount ==9 && data > 256)    packetType = 'C';
             else if (bitCount ==8 && !isBeacon)     packetType = 'D';
-            else if (bitCount ==5 &&  isBeacon)     packetType = 'B';
+            else if (bitCount ==5 &&  isBeacon)     packetType = 'Z';
             else if (bitCount ==7 && !isBeacon)     packetType = 'T';
             else                                    packetType = '_';     // Indicates an error.
             
@@ -79,12 +79,10 @@ void sendLazerSwarmIR(char line[])
 //            //if (bitCount == 9 && data > 256) Serial.print("\n");
 //            TimeSinceLast = millis();
 
-            lazerTagSend.enableIROut(38);
-            
             IRcontrol(packetType, data);
-        
-            lazerTagReceive.enableIRIn();
+            lazerTagReceive.enableIRIn(true);
             lazerTagReceive.resume();
+            
           
             break;
         }

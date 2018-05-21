@@ -7,7 +7,7 @@
     //Send Header
     switch (type)
     {
-    // if Type = B then Beacon,   Header is 366, length is 5 bits
+    // if Type = Z then Beacon,   Header is 366, length is 5 bits
     // if Type = T then Tag,      Header is 363, length is 7 bits
     // if Type = D the data byte, Header is 363, length is 8 bits
     // if Type = P then Packet,   Header is 363, length is 9 bits, first bit must be 0
@@ -54,7 +54,7 @@
         PulseIR(3);
         break;
 
-    case 'B':
+    case 'Z':
         _msgLength = 5;
         _interDelay = 25;
         PulseIR(3);
@@ -69,9 +69,9 @@
         delayMicroseconds (2000);
         PulseIR(bitRead(message, bitCount)+1);        // the +1 is to convert 0/1 data into 1/2mS pulses.
     }
-    
+
     lazerTagReceive.resume();
-    
+
     if(type != 'C') delay(_interDelay);
 }
 
