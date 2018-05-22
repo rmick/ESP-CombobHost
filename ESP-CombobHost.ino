@@ -8,34 +8,34 @@
 #include "EEPROM.h"
 #include "Logo.h"
 
-#define BUILD_NUMBER 1805.19
-//#define DEBUG_LOCAL
+#define         BUILD_NUMBER            1805.22
+//#define       DEBUG_LOCAL
 
 //OLED
-#define         OLED_SDA 4
-#define         OLED_SCL 15
-Adafruit_SH1106 display(OLED_SDA, OLED_SCL);
+#define         OLED_SDA                4
+#define         OLED_SCL                15
+Adafruit_SH1106 display                 (OLED_SDA, OLED_SCL);
 
 //WiFi
-const char      *ssid               = "Combobulator";
-const char      *password           = "Lasertag42";
-const int       LED_PIN             = 25;
+const char      *ssid                   = "Combobulator";
+const char      *password               = "Lasertag42";
+const int       LED_PIN                 = 25;
 WiFiServer      server(8000);
 WiFiClient      client;
 
 //Global Variables
-String          dataIn              = "";
-String          dataOut             = "";
-int             irTraffic           = false;
-unsigned long   txStartTime         = micros();
-unsigned long   rxStartTime         = micros();
-bool            rxIndicatorOn       = false;
-bool            txIndicatorOn       = false;
-int             vCursor             = 0;
-int             hCursor             = 0;
-int             analogInput         = 0;
-float           batteryVolts        = 0;
-bool            isConnected         = false;
+String          dataIn                  = "";
+String          dataOut                 = "";
+int             irTraffic               = false;
+unsigned long   txStartTime             = micros();
+unsigned long   rxStartTime             = micros();
+bool            rxIndicatorOn           = false;
+bool            txIndicatorOn           = false;
+int             vCursor                 = 0;
+int             hCursor                 = 0;
+int             analogInput             = 0;
+float           batteryVolts            = 0;
+bool            isConnected             = false;
 
 //debug
 #define         START                   1
@@ -60,7 +60,7 @@ bool            processingMessage       = false;
 #define         RECEIVE_PIN             17
 #define         TX_PIN                  14
 
-IRrecv          lazerTagReceive(RECEIVE_PIN);
+IRrecv          lazerTagReceive         (RECEIVE_PIN);
 long unsigned   TimeSinceLast;
 decode_results  results;
 
@@ -71,7 +71,7 @@ int             rxErrorCount            = 0;
 bool            receivingData           = false;
 unsigned long   rxTimer                 = millis();
 unsigned long   rxTimeOutInterval       = 1200;
-char            serialBuffer[SERIAL_BUFFER_SIZE];
+char            serialBuffer            [SERIAL_BUFFER_SIZE];
 
 //EEPROM
 int             eepromAddress           = 0;
@@ -88,9 +88,9 @@ int             eepromAddress           = 0;
 #define         BUTTON                  0
 
 // S3 Bucket Config
-String          otaHost                 = "combobulator.s3.ap-southeast-2.amazonaws.com"; // Host => bucket-name.s3.region.amazonaws.com
-int             otaPort = 80;           // Non https. For HTTPS 443. As of today, HTTPS doesn't work.
-String          otaFileName             = "/ESP-CombobHost.ino.bin"; // bin file name with a slash in front.
+String          otaHost                 = "combobulator.s3.ap-southeast-2.amazonaws.com";
+int             otaPort                 = 80;           
+String          otaFileName             = "/ESP-CombobHost.ino.bin";
 bool            otaMode                 = false;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -121,6 +121,13 @@ void setup()
     display.begin(SH1106_SWITCHCAPVCC, 0x3C);   // initialize with the I2C addr 0x3C
     display.setTextColor(WHITE, BLACK);
 
+    //LED cWrite Setup
+    int freq = 38000;
+    int ledChannel = 1;
+    int resolution = 8;
+    ledcAttachPin(TX_PIN, ledChannel);
+    ledcSetup(ledChannel, freq, resolution);
+
     //Initiliase the Combobulator Hardware
     pinMode(RED_LED,    INPUT_PULLDOWN);
     pinMode(GREEN_LED,  INPUT_PULLDOWN);    
@@ -138,34 +145,10 @@ void setup()
 
         if(EEPROM.readByte(OTA_MODE_OFFSET) == true)    otaMode = true;
         else                                            otaMode = false;
-
-        Serial.print  ("EEPROM says that OTAmode is ");
-        Serial.println(otaMode);
-        Serial.println(EEPROM.readByte(OTA_MODE_OFFSET));
-        Serial.println(EEPROM.readString(SSID_OFFSET));
-        Serial.println(EEPROM.readString(PSWD_OFFSET));
-        
     }
-            
-                bool LSC    = false;
-                bool HOME   = false;
-                
-                if(LSC)
-                {
-                    EEPROM.writeString(SSID_OFFSET, "LSC Staff");
-                    EEPROM.writeString(PSWD_OFFSET, "#YeahIknow$");
-                    Serial.println("LSC credentials written to EEPROM");
-                }
-                else if(HOME)
-                {
-                    EEPROM.writeString(SSID_OFFSET, "TelstraD4AC4B");
-                    EEPROM.writeString(PSWD_OFFSET, "7en9s3428k");
-                    Serial.println("TelstraHome credentials written to EEPROM");
-                }
 
-
-     if(otaMode)
-    {
+    if (otaMode)
+    {  
         Serial.println("----------\nOTA Mode\n----------");
         writeDisplay("U/G Mode", 2, CENTRE_HOR, 1, true);
 
@@ -179,23 +162,18 @@ void setup()
         
         Serial.print("\n-----------\nPassword =");
         Serial.print(pswdString);
-        Serial.print(":");
+        Serial.print(":\t");
         Serial.print(pswdString.length());
         Serial.print(":");
         Serial.print(pswdString.charAt(0));
         Serial.print(":");
         Serial.print(pswdString.charAt(pswdString.length()-1)); 
-        Serial.println(":END");    
+        Serial.println(":END\n");    
 
         //Set default to runMode, in case it fails. (i.e. this is one time routine).
         EEPROM.writeByte(OTA_MODE_OFFSET, false);
         EEPROM.commit();
         delay(1000);
-
-       //const char *otaSSID = "TelstraD4AC4B";
-       //const char* otaPSWD = "7en9s3428k";
-       //const char *otaSSID = "LSC Staff";
-       //const char* otaPSWD = "#YeahIknow$";
 
         // Connect to provided SSID and PSWD
         WiFi.begin(otaSSID, otaPSWD);
@@ -217,6 +195,7 @@ void setup()
             if(!digitalRead(BUTTON))
             {
                 Serial.print("Button Pressed - Set OTA mode");
+                writeDisplay("OTA mode", 2, CENTRE_HOR, 1, false);
                 EEPROM.writeByte(OTA_MODE_OFFSET, true);
                 EEPROM.commit();
                 delay(1000);
@@ -237,6 +216,7 @@ void setup()
         writeDisplay(":-)",     2, CENTRE_HOR, 4, false);
         delay(1500);
     }
+    
     else
     {
         Serial.println("----------\nRun Mode\n----------");
@@ -251,13 +231,6 @@ void setup()
         IPAddress subnet(255, 255, 0, 0);
         WiFi.config(local_IP, gateway, subnet);
         WiFi.begin();
-    
-        //LED cWrite Setup
-        int freq = 38000;
-        int ledChannel = 1;
-        int resolution = 8;
-        ledcAttachPin(TX_PIN, ledChannel);
-        ledcSetup(ledChannel, freq, resolution);
 
         // Splash the Logo
         display.clearDisplay();
@@ -276,7 +249,7 @@ void setup()
         display.clearDisplay();
         writeDisplay("Battery =", 2, CENTRE_HOR, 2, true);
         writeDisplay(String(BatteryVoltage()) + " v", 2, CENTRE_HOR, 3, false);
-        delay(1000);
+        delay(500);
 
         writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
         

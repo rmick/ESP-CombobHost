@@ -124,7 +124,7 @@ void processWiFi()
             writeDisplay("Press Reset to start", 1, CENTRE_HOR, 7, false);
             
             // Do not enable this, as they are upgrading.........
-            //lazerTagReceive.enableIRIn(true);
+            lazerTagReceive.enableIRIn(true);
         }
         
         else 

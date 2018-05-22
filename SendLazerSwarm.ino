@@ -79,9 +79,9 @@ void sendLazerSwarmIR(char line[])
 //            //if (bitCount == 9 && data > 256) Serial.print("\n");
 //            TimeSinceLast = millis();
 
-            IRcontrol(packetType, data);
-            lazerTagReceive.enableIRIn(true);
-            lazerTagReceive.resume();
+    //////IRcontrol(packetType, data);
+            //lazerTagReceive.enableIRIn(true);
+            //lazerTagReceive.resume();
             
           
             break;

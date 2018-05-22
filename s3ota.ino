@@ -32,16 +32,13 @@ bool isValidContentType = false;
 // Your SSID and PSWD that the chip needs
 // to connect to
 
-//const char* SSID = "TelstraD4AC4B";
-//const char* PSWD = "7en9s3428k";
-
-//const char* otaSSID = "LSC Staff";
-//const char* otaPSWD = "#YeahIknow$";
+//const char* SSID = "SSID";
+//const char* PSWD = "password";
 
 // S3 Bucket Config
 //String host = "combobulator.s3.ap-southeast-2.amazonaws.com"; // Host => bucket-name.s3.region.amazonaws.com
 //int port = 80; // Non https. For HTTPS 443. As of today, HTTPS doesn't work.
-//String bin = "/ESP32-Combobulator.ino.bin"; // bin file name with a slash in front.
+//String bin = "/StartCounter.ino.bin"; // bin file name with a slash in front.
 
 // Utility to extract header value from headers
     String getHeaderValue(String header, String headerName)
