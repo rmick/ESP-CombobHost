@@ -191,9 +191,10 @@ void setup()
         EEPROM.commit();
         delay(1000);
 
+        //DO NOT TOUCH
+        //  This is here to force the ESP32 to reset the WiFi and initialise correctly.
         Serial.print("WIFI status = ");
         Serial.println(WiFi.getMode());
-
         WiFi.disconnect(true);
         delay(1000);
         WiFi.mode(WIFI_STA);
@@ -201,8 +202,8 @@ void setup()
         
         // Connect to provided SSID and PSWD
         WiFi.begin(otaSSID, otaPSWD);
-        Serial.println("Connecting to" + String(otaSSID));
-        Serial.println("Credentials:"  + String(otaPSWD));
+        Serial.println("Connecting to:" + String(otaSSID));
+        Serial.println("Credentials:"   + String(otaPSWD));
         
         writeDisplay("Connecting to", 1, CENTRE_HOR, 4, false);
         writeDisplay(otaSSID,         1, CENTRE_HOR, 6, false);

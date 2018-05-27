@@ -24,6 +24,7 @@ void loop()
         Serial.println("Connected");
 
         writeDisplay("Online", 2, CENTRE_HOR, CENTRE_VER, true);
+        rgbLED(0,1,0);
 
         //TCP connection established           
         while (client.connected()) 
@@ -57,13 +58,14 @@ void loop()
             }
 
             //Show if battery is flat.
-            if(BatteryVoltage() < 5.2) rgbLED(1,0,0); 
+            if(BatteryVoltage() < 4) rgbLED(1,0,0); 
 
         }
         //TCP connection has been terminated
         digitalWrite(LED_PIN, LOW);
         Serial.println("\n\tDisconnected");
         writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
+        rgbLED(0,0,1);
 
        
     }
