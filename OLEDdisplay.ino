@@ -95,3 +95,4 @@ void irDataIndicator(int state, int location)
         if (location == ASTERISK_RX) rxIndicatorOn = false;
     }
 }
+

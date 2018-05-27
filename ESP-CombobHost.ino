@@ -8,7 +8,7 @@
 #include "EEPROM.h"
 #include "Logo.h"
 
-#define         BUILD_NUMBER            1805.22
+#define         BUILD_NUMBER            1805.28
 //#define       DEBUG_LOCAL
 
 //OLED
@@ -99,7 +99,7 @@ void setup()
 {
     //Setup
     Serial.begin(115200);
-    Serial.setDebugOutput(true);
+    //Serial.setDebugOutput(true);
     delay(100);
     Serial.println("\n");
     Serial.println("The Combobulator is now running........\n");
@@ -112,6 +112,7 @@ void setup()
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, LOW);
     pinMode(BUTTON, INPUT);
+    pinMode(TX_PIN, OUTPUT);
 
     //Initialise the OLED screen
     pinMode(16, OUTPUT); 
@@ -134,6 +135,7 @@ void setup()
     pinMode(BLUE_LED,   INPUT_PULLDOWN);
     pinMode(BATT_VOLTS, INPUT);
     
+    
     //Set up EEPROM
     if (!EEPROM.begin(EEPROM_SIZE))
     {
@@ -150,8 +152,12 @@ void setup()
     if (otaMode)
     {  
         Serial.println("----------\nOTA Mode\n----------");
-        writeDisplay("U/G Mode", 2, CENTRE_HOR, 1, true);
+        
+        //Force the IR LEDs off !
+        digitalWrite(TX_PIN, LOW);
 
+        writeDisplay("U/G Mode", 2, CENTRE_HOR, 1, true);
+        
         //Read Credentials from EEPROM
         String ssidString = EEPROM.readString(SSID_OFFSET);
         ssidString.remove(ssidString.length()-1);
@@ -159,8 +165,18 @@ void setup()
         String pswdString = EEPROM.readString(PSWD_OFFSET);
         pswdString.remove(pswdString.length()-2);
         const char *otaPSWD = &pswdString[0u];
+
+        Serial.print("\n---------------------\nSSID = ");
+        Serial.print(ssidString);
+        Serial.print(":\t");
+        Serial.print(ssidString.length());
+        Serial.print(":");
+        Serial.print(ssidString.charAt(0));
+        Serial.print(":");
+        Serial.print(ssidString.charAt(ssidString.length()-1)); 
+        Serial.println(":END\n");    
         
-        Serial.print("\n-----------\nPassword =");
+        Serial.print("\n---------------------\nPassword = ");
         Serial.print(pswdString);
         Serial.print(":\t");
         Serial.print(pswdString.length());
@@ -175,10 +191,18 @@ void setup()
         EEPROM.commit();
         delay(1000);
 
+        Serial.print("WIFI status = ");
+        Serial.println(WiFi.getMode());
+
+        WiFi.disconnect(true);
+        delay(1000);
+        WiFi.mode(WIFI_STA);
+        delay(100);
+        
         // Connect to provided SSID and PSWD
         WiFi.begin(otaSSID, otaPSWD);
-        Serial.println("Connecting to " + String(otaSSID));
-        Serial.println("Credentials: "  + String(otaPSWD));
+        Serial.println("Connecting to" + String(otaSSID));
+        Serial.println("Credentials:"  + String(otaPSWD));
         
         writeDisplay("Connecting to", 1, CENTRE_HOR, 4, false);
         writeDisplay(otaSSID,         1, CENTRE_HOR, 6, false);
@@ -196,7 +220,7 @@ void setup()
             {
                 Serial.print("Button Pressed - Set OTA mode");
                 writeDisplay("OTA mode", 2, CENTRE_HOR, 1, false);
-                EEPROM.writeByte(OTA_MODE_OFFSET, true);
+                EEPROM.writeByte(OTA_MODE_OFFSET, true);         
                 EEPROM.commit();
                 delay(1000);
             }
@@ -245,21 +269,21 @@ void setup()
        #endif
         delay(1500);
     
-        //Show Battery Voltage
-        display.clearDisplay();
-        writeDisplay("Battery =", 2, CENTRE_HOR, 2, true);
-        writeDisplay(String(BatteryVoltage()) + " v", 2, CENTRE_HOR, 3, false);
-        delay(500);
+//        //Show Battery Voltage
+//        display.clearDisplay();
+//        writeDisplay("Battery =", 2, CENTRE_HOR, 2, true);
+//        writeDisplay(String(BatteryVoltage()) + " v", 2, CENTRE_HOR, 3, false);
+//        delay(500);
 
         writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
         
         lazerTagReceive.enableIRIn(true);
         lazerTagReceive.resume();
         
-        pinMode(TX_PIN, OUTPUT);
         void processSignature(decode_results *results);
     }
 }
 
 /////////////////////////////////////////////////////////////////////////
+
 

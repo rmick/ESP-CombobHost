@@ -31,3 +31,4 @@ void sendLttoIR(String fullDataString)
         IRcontrol(packetType, data);
     }
 }
+

@@ -27,9 +27,9 @@ void loop()
 
         //TCP connection established           
         while (client.connected()) 
-        {          
+      
 //THIS IS THE REAL MAIN LOOP
-            
+        {
             //Check for any IR messages received and action them              
             if (lazerTagReceive.decode(&results))
             {
@@ -86,3 +86,4 @@ void loop()
 //    }
 
 }
+
