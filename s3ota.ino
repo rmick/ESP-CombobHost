@@ -167,9 +167,15 @@ void execOTA() {
     // If yes, begin
     if (canBegin) {
       Serial.println("Begin OTA. This may take 2 - 5 mins to complete. Things might be quite for a while.. Patience!");
-      writeDisplay("Updating", 2, CENTRE_HOR, 2,  true);
+      writeDisplay("Updating", 2, CENTRE_HOR, 1,  true);
       writeDisplay("- WAIT -", 2, CENTRE_HOR, 3, false);
       writeDisplay("2-3 mins", 2, CENTRE_HOR, 4, false);
+
+      //Set default to runMode, in case it fails. (i.e. this is one time routine).
+      EEPROM.writeByte(OTA_MODE_OFFSET, false);
+      EEPROM.commit();
+      delay(1000);
+
       // No activity would appear on the Serial monitor
       // So be patient. This may take 2 - 5mins to complete
       size_t written = Update.writeStream(client);

@@ -40,7 +40,7 @@ bool            isConnected             = false;
 //debug
 #define         START                   1
 #define         STOP                    0
-unsigned long   howLongDidThisTake      = micros();
+unsigned long   howLongDidThisTake      = millis();
 bool            processingMessage       = false;
 
 //Display constants
@@ -77,6 +77,7 @@ char            serialBuffer            [SERIAL_BUFFER_SIZE];
 int             eepromAddress           = 0;
 #define         EEPROM_SIZE             256
 #define         OTA_MODE_OFFSET         1
+#define         OTA_COUNT               5
 #define         PSWD_OFFSET             10
 #define         SSID_OFFSET             50
 
@@ -92,6 +93,8 @@ String          otaHost                 = "combobulator.s3.ap-southeast-2.amazon
 int             otaPort                 = 80;           
 String          otaFileName             = "/ESP-CombobHost.ino.bin";
 bool            otaMode                 = false;
+unsigned long   timeOut                 = micros();
+uint8_t         otaCount                = 0;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -132,7 +135,7 @@ void setup()
     //Initiliase the Combobulator Hardware
     pinMode(RED_LED,    INPUT_PULLDOWN);
     pinMode(GREEN_LED,  INPUT_PULLDOWN);    
-    pinMode(BLUE_LED,   INPUT_PULLDOWN);
+    pinMode(BLUE_LED,   INPUT_PULLUP);
     pinMode(BATT_VOLTS, INPUT);
     
     
@@ -144,6 +147,10 @@ void setup()
     else
     {
         Serial.println("EEPROM initiliased");
+
+        otaCount = EEPROM.readByte(OTA_COUNT);
+        Serial.print("otaCount = ");
+        Serial.println(otaCount);
 
         if(EEPROM.readByte(OTA_MODE_OFFSET) == true)    otaMode = true;
         else                                            otaMode = false;
@@ -186,11 +193,6 @@ void setup()
         Serial.print(pswdString.charAt(pswdString.length()-1)); 
         Serial.println(":END\n");    
 
-        //Set default to runMode, in case it fails. (i.e. this is one time routine).
-        EEPROM.writeByte(OTA_MODE_OFFSET, false);
-        EEPROM.commit();
-        delay(1000);
-
         //DO NOT TOUCH
         //  This is here to force the ESP32 to reset the WiFi and initialise correctly.
         Serial.print("WIFI status = ");
@@ -199,6 +201,7 @@ void setup()
         delay(1000);
         WiFi.mode(WIFI_STA);
         delay(100);
+        // End silly stuff !!!
         
         // Connect to provided SSID and PSWD
         WiFi.begin(otaSSID, otaPSWD);
@@ -209,6 +212,8 @@ void setup()
         writeDisplay(otaSSID,         1, CENTRE_HOR, 6, false);
 
         // Wait for connection to establish
+        timeOut = millis();
+        bool reTry = false;
         bool flashDot = false;
         while (WiFi.status() != WL_CONNECTED)
         {
@@ -217,15 +222,45 @@ void setup()
             flashDot = !flashDot;
             delay(500);
 
+            if ( (millis() - timeOut) > 7500) reTry = true;
+            Serial.print("TimeOut = ");
+            Serial.print(timeOut);
+            Serial.print(" : ");
+            Serial.println(millis() - timeOut);
+
             if(!digitalRead(BUTTON))
             {
-                Serial.print("Button Pressed - Set OTA mode");
+                Serial.println("Button Pressed - Set OTA mode");
                 writeDisplay("OTA mode", 2, CENTRE_HOR, 1, false);
                 EEPROM.writeByte(OTA_MODE_OFFSET, true);         
                 EEPROM.commit();
                 delay(1000);
             }
-    
+
+            if (reTry == true)
+            {
+                if(++otaCount > 2)
+                {
+                    writeDisplay("Failed",      2, CENTRE_HOR, 2, true);
+                    writeDisplay("I give up", 2, CENTRE_HOR, 3, false);
+                    EEPROM.writeByte(OTA_MODE_OFFSET, false);
+                    EEPROM.writeByte(OTA_COUNT, 0); 
+                    EEPROM.commit();
+                    delay(1000);
+                }
+                else
+                {
+                    writeDisplay("Failed",              2, CENTRE_HOR, 1, true);
+                    writeDisplay("Re-trying",           2, CENTRE_HOR, 2, false);
+                    writeDisplay(String(otaCount),    2, CENTRE_HOR, 4, false); 
+                    EEPROM.writeByte(OTA_MODE_OFFSET, true);   
+                    EEPROM.writeByte(OTA_COUNT, otaCount);         
+                    EEPROM.commit();
+                    delay(1000);
+                }
+                
+                ESP.restart();
+            }
         }
 
         // Connection Succeeded

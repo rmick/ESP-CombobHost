@@ -119,12 +119,25 @@ void processWiFi()
             Serial.print("\tpwd =\t");
             Serial.println(EEPROM.readString(PSWD_OFFSET));
 
-            writeDisplay("U/G mode",             2, CENTRE_HOR, 1, true);
-            writeDisplay("selected",             2, CENTRE_HOR, 2, false);
-            writeDisplay("Press Reset to start", 1, CENTRE_HOR, 7, false);
+            writeDisplay("U/G mode",   2, CENTRE_HOR, 1, true);
+            writeDisplay("selected",   2, CENTRE_HOR, 2, false);
+            writeDisplay("RESTARTING", 1, CENTRE_HOR, 7, false);
+            delay(1000);
+            dataIn = "";
             
-            // Do not enable this, as they are upgrading.........
-            lazerTagReceive.enableIRIn(true);
+            ESP.restart();
+        }
+
+        else if (dataIn.startsWith("PING",0))
+        {
+            String pingText = (dataIn.substring(dataIn.indexOf(',') + 1));
+            Serial.print("Reply to Ping");
+            String pongText = "PONG," + pingText;
+            client.println(pongText);
+            writeDisplay("PING",   2, CENTRE_HOR, 1, true);
+            writeDisplay("Reply",  2, CENTRE_HOR, 2, false);
+            writeDisplay(pingText, 1, CENTRE_HOR, 7, false);
+            dataIn = "";
         }
         
         else 
