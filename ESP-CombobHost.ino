@@ -8,7 +8,7 @@
 #include "EEPROM.h"
 #include "Logo.h"
 
-#define         BUILD_NUMBER            1805.28
+#define         BUILD_NUMBER            1807.27
 //#define       DEBUG_LOCAL
 
 //OLED
@@ -38,9 +38,9 @@ float           batteryVolts            = 0;
 bool            isConnected             = false;
 
 //debug
-#define         START                   1
-#define         STOP                    0
-unsigned long   howLongDidThisTake      = millis();
+#define         START_DEBUG             1
+#define         STOP_DEBUG              0
+unsigned long   howLongDidThisTake      = micros();
 bool            processingMessage       = false;
 
 //Display constants
@@ -82,9 +82,9 @@ int             eepromAddress           = 0;
 #define         SSID_OFFSET             50
 
 //Combobualtor Hardware
-#define         RED_LED                 32
-#define         GREEN_LED               33
-#define         BLUE_LED                36
+#define         RED_LED                 12
+#define         GREEN_LED               27
+#define         BLUE_LED                26
 #define         BATT_VOLTS              34
 #define         BUTTON                  0
 
@@ -93,7 +93,7 @@ String          otaHost                 = "combobulator.s3.ap-southeast-2.amazon
 int             otaPort                 = 80;           
 String          otaFileName             = "/ESP-CombobHost.ino.bin";
 bool            otaMode                 = false;
-unsigned long   timeOut                 = micros();
+unsigned long   timeOut                 = millis();
 uint8_t         otaCount                = 0;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -131,11 +131,12 @@ void setup()
     int resolution = 8;
     ledcAttachPin(TX_PIN, ledChannel);
     ledcSetup(ledChannel, freq, resolution);
+    ledcWrite(1,0); //Force the LED off, just in case!
 
     //Initiliase the Combobulator Hardware
     pinMode(RED_LED,    INPUT_PULLDOWN);
     pinMode(GREEN_LED,  INPUT_PULLDOWN);    
-    pinMode(BLUE_LED,   INPUT_PULLUP);
+    pinMode(BLUE_LED,   INPUT_PULLDOWN);
     pinMode(BATT_VOLTS, INPUT);
     
     
@@ -200,7 +201,9 @@ void setup()
         WiFi.disconnect(true);
         delay(1000);
         WiFi.mode(WIFI_STA);
-        delay(100);
+        delay(1000);
+        Serial.print("WIFI status = ");
+        Serial.println(WiFi.getMode());
         // End silly stuff !!!
         
         // Connect to provided SSID and PSWD
@@ -280,9 +283,19 @@ void setup()
     else
     {
         Serial.println("----------\nRun Mode\n----------");
+
+        //DO NOT TOUCH
+        //  This is here to force the ESP32 to reset the WiFi and initialise correctly.
+        Serial.print("WIFI status = ");
+        Serial.println(WiFi.getMode());
+        WiFi.disconnect(true);
+        delay(1000);
+        // End silly stuff !!!
             
         //Start the access point
         WiFi.mode(WIFI_AP_STA);
+        Serial.print("WIFI status = ");
+        Serial.println(WiFi.getMode());
         WiFi.softAP(ssid, password);
         server.begin();
     

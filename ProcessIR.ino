@@ -102,7 +102,11 @@ void processIR(decode_results *results)
 void setIrReceivingState (bool state)
 {
         rxTimer = millis();
-        if (receivingData == false && state == true) Serial.println("STOP");
+        if (receivingData == false && state == true)
+        {
+            client.println("STOP");
+            Serial.println("STOP");
+        }
         receivingData = state;
         if (state == true)  digitalWrite(LED_PIN, HIGH);
         else                digitalWrite(LED_PIN,  LOW);

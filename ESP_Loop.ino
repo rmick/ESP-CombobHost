@@ -27,10 +27,11 @@ void loop()
         rgbLED(0,1,0);
 
         //TCP connection established           
-        while (client.connected()) 
-      
-//THIS IS THE REAL MAIN LOOP
+        while (client.connected())
         {
+            //THIS IS THE REAL MAIN LOOP
+            if(!digitalRead(BUTTON)) Serial.println("HELLO Mr Button");
+            
             //Check for any IR messages received and action them              
             if (lazerTagReceive.decode(&results))
             {
@@ -54,23 +55,19 @@ void loop()
                     Serial.println(fullRxMessage);
                     digitalWrite(LED_PIN, LOW);
                }
-               //else Serial.print("Rx.");
             }
-
-            //Show if battery is flat.
-            if(BatteryVoltage() < 4) rgbLED(1,0,0); 
-
         }
         //TCP connection has been terminated
-        digitalWrite(LED_PIN, LOW);
-        Serial.println("\n\tDisconnected");
-        writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
-        rgbLED(0,0,1);
-
-       
+        static bool firstTimeThru = true;
+        if (firstTimeThru)
+        {
+            client.stop();
+            Serial.println("\n\tDisconnected");
+            writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
+            rgbLED(0,0,1);
+            firstTimeThru = false;
+        }
     }
-    //We are now in the Offline loop
-
 
     //TODO: Set a timer, if nothing happens for 2 minutes, power down.
 

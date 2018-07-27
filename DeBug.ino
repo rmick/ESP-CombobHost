@@ -2,7 +2,7 @@ int loopCount = 0;
 
 void HowLong(bool state)
 {
-    if (state == START)
+    if (state == START_DEBUG)
     {
         howLongDidThisTake = micros();
         processingMessage = true;

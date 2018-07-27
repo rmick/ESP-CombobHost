@@ -72,12 +72,14 @@ void processWiFi()
         {
             Serial.print("LED command = ");
             Serial.print(dataIn);
+            
             int RedDelim    = dataIn.indexOf(',') + 1;
             int GreenDelim  = dataIn.indexOf(',', RedDelim   + 1) + 1;
             int BlueDelim   = dataIn.indexOf(',', GreenDelim + 1) + 1;
-            bool Red    = (dataIn.substring(RedDelim, GreenDelim-1)).toInt();
+                
+            bool Red    = (dataIn.substring(RedDelim,   GreenDelim-1)).toInt();
             bool Green  = (dataIn.substring(GreenDelim, BlueDelim-1)).toInt();
-            bool Blue   = (dataIn.substring(BlueDelim, 1)).toInt();
+            bool Blue   = (dataIn.substring(BlueDelim)).toInt();
             
             Serial.print(" : ");
             Serial.print(Red);
@@ -138,6 +140,11 @@ void processWiFi()
             writeDisplay("Reply",  2, CENTRE_HOR, 2, false);
             writeDisplay(pingText, 1, CENTRE_HOR, 7, false);
             dataIn = "";
+        }
+        else if (dataIn.startsWith("ESP_RESTART",0))
+        {
+            Serial.print("ESP_RESTART triggered");
+            ESP.restart();
         }
         
         else 
