@@ -6,6 +6,23 @@ void loop()
 
     if(!digitalRead(BUTTON))
         {
+            
+            
+//     //SPECIAL DBUG TEST MODE ONLY
+//     //DELETE THIS !!!!
+//
+//             //sendLttoIR(﻿"ltto:P02:D225:D16:D37:D255:D21:D32:D32:D01:C365: \r\n");      //Send to IR
+//             sendLttoIR("ltto:P02:D255;D16:D37:D255:D21:D32:D32:D01:C365\r\n");
+//             writeDisplay("Message",  2, CENTRE_HOR, 1, true);
+//             writeDisplay("Sent",     2, CENTRE_HOR, 2, false);
+//             delay(500);
+//             writeDisplay("-----",    2, CENTRE_HOR, 2, true);
+//            
+//     //SPECIAL DBUG TEST MODE ONLY
+//     //DELETE THIS !!!!
+
+            
+            
             lazerTagReceive.enableIRIn(false);
             Serial.print("Button Pressed - set Update mode");
             writeDisplay("U/G mode",             2, CENTRE_HOR, 1, true);
@@ -32,7 +49,19 @@ void loop()
             //THIS IS THE REAL MAIN LOOP
             if(!digitalRead(BUTTON)) Serial.println("HELLO Mr Button");
             
-            //Check for any IR messages received and action them              
+            //Check for any IR messages received and action them  
+
+            
+
+            //Process IR via ESP32_IR_LTTO library
+            
+//            if(readIR(irDataArray[25], 100)
+//            {
+//                convert(irDataArray, fullRxMessage);
+//                client.println(fullRxMessage);
+//            }
+
+            //Process IR via IR_LIB library
             if (lazerTagReceive.decode(&results))
             {
                 setIrReceivingState(true);

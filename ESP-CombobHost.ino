@@ -8,7 +8,7 @@
 #include "EEPROM.h"
 #include "Logo.h"
 
-#define         BUILD_NUMBER            1807.27
+#define         BUILD_NUMBER            1.00    //1809.05
 //#define       DEBUG_LOCAL
 
 //OLED
@@ -101,7 +101,7 @@ uint8_t         otaCount                = 0;
 void setup()
 {
     //Setup
-    Serial.begin(115200);
+    Serial.begin(250000);
     //Serial.setDebugOutput(true);
     delay(100);
     Serial.println("\n");

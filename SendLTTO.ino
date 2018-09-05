@@ -30,5 +30,6 @@ void sendLttoIR(String fullDataString)
         //lazerTagSend.enableIROut(38);    
         IRcontrol(packetType, data);
     }
+    
 }
 
