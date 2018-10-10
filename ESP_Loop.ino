@@ -6,32 +6,33 @@ void loop()
 
     if(!digitalRead(BUTTON))
         {
-            
-            
-//     //SPECIAL DBUG TEST MODE ONLY
-//     //DELETE THIS !!!!
-//
-//             //sendLttoIR(﻿"ltto:P02:D225:D16:D37:D255:D21:D32:D32:D01:C365: \r\n");      //Send to IR
-//             sendLttoIR("ltto:P02:D255;D16:D37:D255:D21:D32:D32:D01:C365\r\n");
-//             writeDisplay("Message",  2, CENTRE_HOR, 1, true);
-//             writeDisplay("Sent",     2, CENTRE_HOR, 2, false);
-//             delay(500);
-//             writeDisplay("-----",    2, CENTRE_HOR, 2, true);
-//            
-//     //SPECIAL DBUG TEST MODE ONLY
-//     //DELETE THIS !!!!
-
-            
-            
+                
+        #ifndef RMT_MODE    
             lazerTagReceive.enableIRIn(false);
-            Serial.print("Button Pressed - set Update mode");
-            writeDisplay("U/G mode",             2, CENTRE_HOR, 1, true);
-            writeDisplay("selected",             2, CENTRE_HOR, 2, false);
-            writeDisplay("Press Reset to start", 1, CENTRE_HOR, 7, false);
+        #endif    
+            if(EEPROM.readByte(OTA_MODE_OFFSET) == false)
+            {
+                Serial.print("Button Pressed - set Update mode");
+                writeDisplay("U/G mode",             2, CENTRE_HOR, 1,  true, false);
+                writeDisplay("selected",             2, CENTRE_HOR, 2, false, false);
+                writeDisplay("Press Reset to start", 1, CENTRE_HOR, 7, false,  true);
             
-            EEPROM.writeByte(OTA_MODE_OFFSET, true);
-            EEPROM.commit();
-            delay(1000);
+                EEPROM.writeByte(OTA_MODE_OFFSET, true);
+                EEPROM.commit();
+                delay(1000);
+            }
+            else
+            {
+                Serial.print("Button Pressed - cancel Update mode");
+                writeDisplay("U/G mode",             2, CENTRE_HOR, 1,  true, false);
+                writeDisplay("cancelled",            2, CENTRE_HOR, 2, false, false);
+                writeDisplay("Press Reset to start", 1, CENTRE_HOR, 7, false,  true);
+            
+                EEPROM.writeByte(OTA_MODE_OFFSET, false);
+                EEPROM.commit();
+                delay(1000);
+            }
+            
         }
 
     //Listen for client messages
@@ -40,27 +41,27 @@ void loop()
     {
         Serial.println("Connected");
 
-        writeDisplay("Online", 2, CENTRE_HOR, CENTRE_VER, true);
+        writeDisplay("Online", 2, CENTRE_HOR, CENTRE_VER, true, true);
         rgbLED(0,1,0);
 
         //TCP connection established           
         while (client.connected())
         {
             //THIS IS THE REAL MAIN LOOP
-            if(!digitalRead(BUTTON)) Serial.println("HELLO Mr Button");
+
+            unsigned long currentTime = micros();
+            static unsigned long lastWiFiMessage = millis();
             
             //Check for any IR messages received and action them  
-
-            
-
-            //Process IR via ESP32_IR_LTTO library
-            
-//            if(readIR(irDataArray[25], 100)
-//            {
-//                convert(irDataArray, fullRxMessage);
-//                client.println(fullRxMessage);
-//            }
-
+#ifdef  RMT_MODE
+            //Process IR via ESP32_RMT_IR_LTTO library
+            codeLength = irRx.readIR(IRdataRx,sizeof(IRdataRx));
+            if (codeLength > 3)  //ignore any short codes
+            {
+                if( !isSendingActive)   setIrReceivingState(true);
+                processRmtIr();   
+            }   
+#else
             //Process IR via IR_LIB library
             if (lazerTagReceive.decode(&results))
             {
@@ -68,15 +69,30 @@ void loop()
                 processIR(&results);
                 lazerTagReceive.resume();
             }
+#endif
+
+//            //Announce Game
+//            if(isHostingActive)
+//            {
+//                if((millis() - lastHostTime) > ANNOUNCE_GAME_INTERVAL)
+//            {
+//                //hostPlayerToGame();
+//                lastHostTime = millis();
+//            }
+//            }
+            
+
 
             //Check for any WiFi messages received and action them
             if (receivingData == false && client.available())
             {
                 processWiFi();
+                lastWiFiMessage = millis();
             }
             
             else if (receivingData == true)
             {
+               lastWiFiMessage = millis();
                if ((millis() - rxTimer) > rxTimeOutInterval)
                {
                     receivingData = false;
@@ -85,6 +101,16 @@ void loop()
                     digitalWrite(LED_PIN, LOW);
                }
             }
+            
+            if ((millis() - lastWiFiMessage) > 5000)
+            {
+                Serial.println("TCP comms timeout");
+                writeDisplay("Restarting", 2, CENTRE_HOR, CENTRE_VER, true, true);
+                //lastWiFiMessage = millis();
+                delay(1500);
+                ESP.restart();
+            }
+            
         }
         //TCP connection has been terminated
         static bool firstTimeThru = true;
@@ -92,7 +118,7 @@ void loop()
         {
             client.stop();
             Serial.println("\n\tDisconnected");
-            writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
+            writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, true);
             rgbLED(0,0,1);
             firstTimeThru = false;
         }
@@ -103,15 +129,28 @@ void loop()
 
     
     #ifdef DEBUG_LOCAL
-        if (lazerTagReceive.decode(&results))
-        {
-            processIR(&results);
-            lazerTagReceive.resume();
-        }
+        #ifdef RMT_MODE
+            codeLength = irRx.readIR(IRdataRx,sizeof(IRdataRx));
+            if (codeLength > 0) processRmtIr();      //ignore any short codes
+        #elif
+            if (lazerTagReceive.decode(&results))
+            {
+                processIR(&results);
+                lazerTagReceive.resume();
+            }
+        #endif    
         display.clearDisplay();
         display.display();
     #endif
-//    }
 
+
+//    //Announce Game
+//    if((millis() - lastHostTime) > ANNOUNCE_GAME_INTERVAL)
+//    {
+//        //hostPlayerToGame();
+//        Serial.print("HostPlayerToGame - ");
+//        Serial.println(millis());
+//        lastHostTime = millis();
+//    }
 }
 

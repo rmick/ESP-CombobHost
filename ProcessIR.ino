@@ -114,9 +114,12 @@ void setIrReceivingState (bool state)
         //irDataIndicator(state, ASTERISK_RX);
 
         #ifdef DEBUG_LOCAL
-            if(fullRxMessage.length() <10)  writeDisplay(fullRxMessage, 2, CENTRE_HOR, CENTRE_VER, true);
-            else                            writeDisplay(fullRxMessage, 2, LEFT_HOR,   1,          true);
+            if(fullRxMessage.length() <10)  writeDisplay(fullRxMessage, 2, CENTRE_HOR, CENTRE_VER, true, true);
+            else                            writeDisplay(fullRxMessage, 2, LEFT_HOR,   1,          true, true);
         #endif
 }
+
+
+
 
 

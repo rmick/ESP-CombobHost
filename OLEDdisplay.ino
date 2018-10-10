@@ -1,9 +1,9 @@
-void writeDisplay(String text, int fontSize, int alignment, int lineNumber, bool erase)
+void writeDisplay(String text, int fontSize, int alignment, int lineNumber, bool erase, bool drawScreen)
 {
     if(receivingData == true) return;
 
-    //Serial.print("LCD_WRITE: ");
-    //Serial.println(text);
+//    Serial.print("LCD_WRITE: ");
+//    Serial.print(text);
     
     if (erase) display.clearDisplay();
     display.setTextSize(fontSize);
@@ -27,23 +27,22 @@ void writeDisplay(String text, int fontSize, int alignment, int lineNumber, bool
     }
     display.setCursor(hCursor, vCursor);
     display.println(text);
-    display.display();
+    if(drawScreen)  display.display();
 }
 
-void writeDSPdisplay(int hCursor, int vCursor, String text, int fontSize, int colour, bool clearDsp)
+void writeDSPdisplay(int hCursor, int vCursor, String text, int fontSize, int colour, bool clearDsp, bool drawScreen)
 {
     if(receivingData == true) return;
 
-    Serial.print("LCD_WRITE: ");
-    Serial.println(text);
+    //Serial.print("LCD_WRITE: ");
+    //Serial.println(text);
     
     if (clearDsp) display.clearDisplay();
-    display.display();
     display.setCursor(hCursor, vCursor);
     display.setTextSize(fontSize);
     display.setTextColor(WHITE, BLACK);
     display.println(text);
-    display.display();
+    if(drawScreen) display.display();
 }
 
 //--------------------------------------------------------------------------------------------------

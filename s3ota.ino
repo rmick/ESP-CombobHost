@@ -49,16 +49,16 @@ bool isValidContentType = false;
 // OTA Logic 
 void execOTA() {
   Serial.println("Connecting to: " + String(otaHost));
-  writeDisplay("Finding", 2, CENTRE_HOR, 2,  true);
-  writeDisplay("Server",  2, CENTRE_HOR, 3, false);
+  writeDisplay("Finding", 2, CENTRE_HOR, 2,  true, false);
+  writeDisplay("Server",  2, CENTRE_HOR, 3, false,  true);
         
   // Connect to S3
   if (client.connect(otaHost.c_str(), otaPort)) {
     // Connection Succeed.
     // Fecthing the bin
     Serial.println("Fetching Bin: " + String(otaFileName));
-    writeDisplay("Getting", 2, CENTRE_HOR, 2,  true);
-    writeDisplay("File",    2, CENTRE_HOR, 3, false);
+    writeDisplay("Getting", 2, CENTRE_HOR, 2,  true, false);
+    writeDisplay("File",    2, CENTRE_HOR, 3, false,  true);
 
     // Get the contents of the bin file
     client.print(String("GET ") + otaFileName + " HTTP/1.1\r\n" +
@@ -76,8 +76,8 @@ void execOTA() {
     while (client.available() == 0) {
       if (millis() - timeout > 5000) {
         Serial.println("Client Timeout !");
-        writeDisplay("Client",   2, CENTRE_HOR, 2,  true);
-        writeDisplay("TimedOut", 2, CENTRE_HOR, 3, false);
+        writeDisplay("Client",   2, CENTRE_HOR, 2,  true, false);
+        writeDisplay("TimedOut", 2, CENTRE_HOR, 3, false,  true);
         delay(1500);
         client.stop();
         return;
@@ -123,8 +123,8 @@ void execOTA() {
       if (line.startsWith("HTTP/1.1")) {
         if (line.indexOf("200") < 0) {
           Serial.println("Got a non 200 status code from server. Exiting OTA Update.");
-          writeDisplay("File Not", 2, CENTRE_HOR, 2,  true);
-          writeDisplay("Found",    2, CENTRE_HOR, 3, false);
+          writeDisplay("File Not", 2, CENTRE_HOR, 2,  true, false);
+          writeDisplay("Found",    2, CENTRE_HOR, 3, false,  true);
           break;
         }
       }
@@ -150,8 +150,8 @@ void execOTA() {
     // May be try?
     // Probably a choppy network?
     Serial.println("Connection to " + String(otaHost) + " failed. Please check your setup");
-    writeDisplay("Network", 2, CENTRE_HOR, 2,  true);
-    writeDisplay("Error",   2, CENTRE_HOR, 3, false);
+    writeDisplay("Network", 2, CENTRE_HOR, 2,  true, false);
+    writeDisplay("Error",   2, CENTRE_HOR, 3, false,  true);
     // retry??
     // execOTA();
   }
@@ -167,9 +167,9 @@ void execOTA() {
     // If yes, begin
     if (canBegin) {
       Serial.println("Begin OTA. This may take 2 - 5 mins to complete. Things might be quite for a while.. Patience!");
-      writeDisplay("Updating", 2, CENTRE_HOR, 1,  true);
-      writeDisplay("- WAIT -", 2, CENTRE_HOR, 3, false);
-      writeDisplay("2-3 mins", 2, CENTRE_HOR, 4, false);
+      writeDisplay("Updating", 2, CENTRE_HOR, 1,  true, false);
+      writeDisplay("- WAIT -", 2, CENTRE_HOR, 3, false, false);
+      writeDisplay("2-3 mins", 2, CENTRE_HOR, 4, false,  true);
 
       //Set default to runMode, in case it fails. (i.e. this is one time routine).
       EEPROM.writeByte(OTA_MODE_OFFSET, false);
@@ -192,14 +192,17 @@ void execOTA() {
         Serial.println("OTA done!");
         if (Update.isFinished()) {
           Serial.println("Update successfully completed. Rebooting.");
-          writeDisplay("Update",   2, CENTRE_HOR, 2,  true);
-          writeDisplay("Complete", 2, CENTRE_HOR, 3, false);
+          writeDisplay("Update",   2, CENTRE_HOR, 2,  true, false);
+          writeDisplay("Complete", 2, CENTRE_HOR, 3, false,  true);
+          //Set default to runMode, in case it fails. (i.e. this is one time routine).
+          EEPROM.writeByte(OTA_MODE_OFFSET, false);
+          EEPROM.commit();
           delay(2000);
           ESP.restart();
         } else {
           Serial.println("Update not finished? Something went wrong!");
-          writeDisplay("Oh-Oh",    2, CENTRE_HOR, 2,  true);
-          writeDisplay("TryAgain", 2, CENTRE_HOR, 3, false);
+          writeDisplay("Oh-Oh",    2, CENTRE_HOR, 2,  true, false);
+          writeDisplay("TryAgain", 2, CENTRE_HOR, 3, false,  true);
         }
       } else {
         Serial.println("Error Occurred. Error #: " + String(Update.getError()));

@@ -1,8 +1,12 @@
+ 
  void IRcontrol(char type, uint16_t message)
 {   
+    Serial.println("IRcontrol called");
     int         _msgLength      = 0;
     int         _interDelay     = 25;
     static int  _checkSumCalc   = 0;
+
+    rgbLED(1,0,1);
     
     //Send Header
     switch (type)
@@ -69,10 +73,12 @@
         delayMicroseconds (2000);
         PulseIR(bitRead(message, bitCount)+1);        // the +1 is to convert 0/1 data into 1/2mS pulses.
     }
-
+#ifndef RMT_MODE
     lazerTagReceive.resume();
+#endif
 
     if(type != 'C') delay(_interDelay);
+    rgbLED(0,1,0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -86,12 +92,15 @@ void PulseIR(byte _mSec)
     unsigned long _pulseLength = _mSec*1000;
     unsigned long _pulseEndTime = _pulseStartTime + _pulseLength - 24;
 
+    //rgbLED(0,0,0);
+
     ledcWrite(1, 50);
     while (_pulseEndTime >micros() )
     {
         delayMicroseconds(1);
     }
     ledcWrite(1,0);
+    //rgbLED(0,1,0);
 
     //Interrupt driven version
     timeOutCount = _mSec;

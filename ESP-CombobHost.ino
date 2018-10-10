@@ -5,11 +5,18 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH1106.h>
 #include <IRremote.h>
+#include <esp32_IR_Ltto.h>
 #include "EEPROM.h"
 #include "Logo.h"
 
-#define         BUILD_NUMBER            1.00    //1809.05
-//#define       DEBUG_LOCAL
+#define         RMT_MODE
+#define         RMT_FAST_MODE
+
+#define         PROTO               // Disable before building for Ben/Release
+#define         BUILD_NUMBER        9991.10    // 1810.08  9991.10
+
+
+//#define       DEBUG_LOCAL   //N.B. this can cause the LCD screen to go blank due to code in setIrReceivingState()
 
 //OLED
 #define         OLED_SDA                4
@@ -36,6 +43,8 @@ int             hCursor                 = 0;
 int             analogInput             = 0;
 float           batteryVolts            = 0;
 bool            isConnected             = false;
+unsigned long   lastHostTime            = millis();
+
 
 //debug
 #define         START_DEBUG             1
@@ -57,12 +66,38 @@ bool            processingMessage       = false;
 //IR Library
 #define         TYPE_LAZERTAG_BEACON    6000
 #define         TYPE_LAZERTAG_TAG       3000
-#define         RECEIVE_PIN             17
-#define         TX_PIN                  14
+#define         RX_PIN                  17
 
-IRrecv          lazerTagReceive         (RECEIVE_PIN);
-long unsigned   TimeSinceLast;
-decode_results  results;
+#ifdef PROTO
+    #define     TX_PIN                  14
+#else    
+    #define     TX_PIN                  12
+#endif    
+
+//GameHosting
+#define         ANNOUNCE_GAME_INTERVAL  1500
+bool            isHostingActive = false;
+bool            cancelHosting   = false;
+
+
+//ESP32 IR Library
+#define         TX_CHAN     0
+#define         RX_CHAN     1
+
+#ifdef RMT_MODE
+    ESP32_IR        irRx;
+    ESP32_IR        irTx;
+    unsigned int    IRdataRx[250]; //holding array for IR code in ms
+    rmt_item32_t    IRdataTx[250];
+    int             codeLength           = 0;
+    bool            isSendingActive      = false;
+    bool            expectingNonP2packet = false;
+    String          txCheckSum           = "";
+#else
+    IRrecv          lazerTagReceive(RX_PIN);
+    long unsigned   TimeSinceLast;
+    decode_results  results;
+#endif
 
 #define         SERIAL_BUFFER_SIZE      64
 String          fullRxMessage           = "";
@@ -76,13 +111,18 @@ char            serialBuffer            [SERIAL_BUFFER_SIZE];
 //EEPROM
 int             eepromAddress           = 0;
 #define         EEPROM_SIZE             256
-#define         OTA_MODE_OFFSET         1
-#define         OTA_COUNT               5
+#define         HARDWARE_VERSION        1
+#define         OTA_MODE_OFFSET         201
+#define         OTA_COUNT               205
 #define         PSWD_OFFSET             10
 #define         SSID_OFFSET             50
 
-//Combobualtor Hardware
-#define         RED_LED                 12
+//Combobulator Hardware
+#ifdef PROTO
+    #define     RED_LED                 12
+#else    
+    #define     RED_LED                 14
+#endif
 #define         GREEN_LED               27
 #define         BLUE_LED                26
 #define         BATT_VOLTS              34
@@ -164,7 +204,7 @@ void setup()
         //Force the IR LEDs off !
         digitalWrite(TX_PIN, LOW);
 
-        writeDisplay("U/G Mode", 2, CENTRE_HOR, 1, true);
+        writeDisplay("U/G Mode", 2, CENTRE_HOR, 1, true, true);
         
         //Read Credentials from EEPROM
         String ssidString = EEPROM.readString(SSID_OFFSET);
@@ -211,8 +251,8 @@ void setup()
         Serial.println("Connecting to:" + String(otaSSID));
         Serial.println("Credentials:"   + String(otaPSWD));
         
-        writeDisplay("Connecting to", 1, CENTRE_HOR, 4, false);
-        writeDisplay(otaSSID,         1, CENTRE_HOR, 6, false);
+        writeDisplay("Connecting to", 1, CENTRE_HOR, 4, false, false);
+        writeDisplay(otaSSID,         1, CENTRE_HOR, 6, false,  true);
 
         // Wait for connection to establish
         timeOut = millis();
@@ -220,8 +260,8 @@ void setup()
         bool flashDot = false;
         while (WiFi.status() != WL_CONNECTED)
         {
-            if (flashDot) writeDisplay(" ", 2, CENTRE_HOR, 4, false);
-            else          writeDisplay(".", 2, CENTRE_HOR, 4, false);
+            if (flashDot) writeDisplay(" ", 2, CENTRE_HOR, 4, false, true);
+            else          writeDisplay(".", 2, CENTRE_HOR, 4, false, true);
             flashDot = !flashDot;
             delay(500);
 
@@ -233,19 +273,21 @@ void setup()
 
             if(!digitalRead(BUTTON))
             {
-                Serial.println("Button Pressed - Set OTA mode");
-                writeDisplay("OTA mode", 2, CENTRE_HOR, 1, false);
-                EEPROM.writeByte(OTA_MODE_OFFSET, true);         
+                Serial.println("Button Pressed - Cancelling OTA mode");
+                writeDisplay("Upgrade",   2, CENTRE_HOR, 1, true,  true);
+                writeDisplay("cancelled", 2, CENTRE_HOR, 2, false, true);
+                EEPROM.writeByte(OTA_MODE_OFFSET, false);         
                 EEPROM.commit();
                 delay(1000);
+                ESP.restart();
             }
 
             if (reTry == true)
             {
                 if(++otaCount > 2)
                 {
-                    writeDisplay("Failed",      2, CENTRE_HOR, 2, true);
-                    writeDisplay("I give up", 2, CENTRE_HOR, 3, false);
+                    writeDisplay("Failed",    2, CENTRE_HOR, 2,  true, false);
+                    writeDisplay("I give up", 2, CENTRE_HOR, 3, false,  true);
                     EEPROM.writeByte(OTA_MODE_OFFSET, false);
                     EEPROM.writeByte(OTA_COUNT, 0); 
                     EEPROM.commit();
@@ -253,9 +295,9 @@ void setup()
                 }
                 else
                 {
-                    writeDisplay("Failed",              2, CENTRE_HOR, 1, true);
-                    writeDisplay("Re-trying",           2, CENTRE_HOR, 2, false);
-                    writeDisplay(String(otaCount),    2, CENTRE_HOR, 4, false); 
+                    writeDisplay("Failed",            2, CENTRE_HOR, 1,  true, false);
+                    writeDisplay("Re-trying",         2, CENTRE_HOR, 2, false, false);
+                    writeDisplay(String(otaCount),    2, CENTRE_HOR, 4, false,  true); 
                     EEPROM.writeByte(OTA_MODE_OFFSET, true);   
                     EEPROM.writeByte(OTA_COUNT, otaCount);         
                     EEPROM.commit();
@@ -269,15 +311,15 @@ void setup()
         // Connection Succeeded
         Serial.println("");
         Serial.println("Connected to " + String(otaSSID));
-        writeDisplay("WiFi",      2, CENTRE_HOR, 2,  true);
-        writeDisplay("Connected", 2, CENTRE_HOR, 3, false);
+        writeDisplay("WiFi",      2, CENTRE_HOR, 2,  true, false);
+        writeDisplay("Connected", 2, CENTRE_HOR, 3, false,  true);
         delay(1000);
         
         // Execute OTA Update
         execOTA();
-        writeDisplay("Updated", 2, CENTRE_HOR, 2,  true);
-        writeDisplay(":-)",     2, CENTRE_HOR, 4, false);
-        delay(1500);
+        //writeDisplay("Updated", 2, CENTRE_HOR, 2,  true, false);
+        //writeDisplay(":-)",     2, CENTRE_HOR, 4, false,  true);
+        //delay(1500);
     }
     
     else
@@ -309,14 +351,15 @@ void setup()
         display.clearDisplay();
         display.drawXBitmap(0, 0, CombobulatorLogo, 128, 64, WHITE);
         display.display();
-        delay (2000);
+        delay (1250);
         display.clearDisplay();
-        writeDisplay("v" + String(BUILD_NUMBER), 2, CENTRE_HOR, CENTRE_VER, true);
-       #ifdef DEBUG_LOCAL
-        delay(750);  
-        writeDisplay("DeBugBuild", 2, CENTRE_HOR, 4, false);
-       #endif
+        writeDisplay("v" + String(BUILD_NUMBER), 2, CENTRE_HOR, CENTRE_VER, true, true);
+        delay(750);
+       #ifdef DEBUG_LOCAL  
+        writeDisplay("DeBug Build", 1, CENTRE_HOR, 7, false, true);
         delay(1500);
+       #endif
+        
     
 //        //Show Battery Voltage
 //        display.clearDisplay();
@@ -324,12 +367,30 @@ void setup()
 //        writeDisplay(String(BatteryVoltage()) + " v", 2, CENTRE_HOR, 3, false);
 //        delay(500);
 
-        writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true);
-        
-        lazerTagReceive.enableIRIn(true);
-        lazerTagReceive.resume();
-        
-        void processSignature(decode_results *results);
+        writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, true);
+        rgbLED(0,0,1);
+
+        //IR config
+        #ifdef RMT_MODE
+            Serial.println("\nConfiguring IR Rx...");
+            bool rxPinOk = irRx.ESP32_IRrxPIN(RX_PIN, RX_CHAN);
+            Serial.println("Initializing IR Rx...");
+            irRx.initReceive();
+            if(rxPinOk) Serial.println("Rx Init complete");
+            else        Serial.println("Rx Init failed");
+            
+            Serial.println("\nConfiguring IR Tx...");
+            bool txPinOk = irTx.ESP32_IRtxPIN(TX_PIN,TX_CHAN);
+            Serial.println("Initializing IR Tx...");
+            irTx.initTransmit(); //setup the ESP32 to send IR code
+            if(txPinOk) Serial.println("Tx Init complete\n");
+            else        Serial.println("Tx Init failed");
+        #else
+            lazerTagReceive.enableIRIn(true);
+            lazerTagReceive.resume();     
+            void processSignature(decode_results *results);
+        #endif
+
     }
 }
 

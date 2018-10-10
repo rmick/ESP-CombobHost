@@ -23,6 +23,10 @@ void processWiFi()
                 return;
             }
             Serial.println("\nLTTO_TX: " + dataIn);
+            int stringLength = dataIn.length();
+            #ifdef RMT_MODE
+                txCheckSum = dataIn.substring( (stringLength - 7), (stringLength-3) );
+            #endif
             sendLttoIR(dataIn);      //Send to IR
             dataIn = "";
         }
@@ -30,48 +34,55 @@ void processWiFi()
         else if (dataIn.startsWith("TXT", 0))
         {
             //Serial.println("LCD: " + dataIn);
-            int lineNumber = (dataIn.charAt(3)-48);                     //grab the 4th character and convert from ASCII to Decimal number
+            
+            int lineNumber = dataIn.charAt(3)-48;                       //grab the 4th character and convert from ASCII to Decimal number
             dataIn.remove(0,5);                                         //remove the TXT#: characters
+            
+            bool drawScreen = dataIn.charAt(dataIn.length()-2) - 48;    //grab the last character and convert from ASCII to Decimal number
+            dataIn.remove((dataIn.length() -3), 3);                     // remove the :x characters
+            
             bool shallWeClearDisplay = false;
-            if(lineNumber == 1) shallWeClearDisplay = true;             //Clear screen if Line# = 1, else don't
-            writeDisplay(dataIn, 2, CENTRE_HOR, lineNumber, shallWeClearDisplay);
+            if(lineNumber ==   1) shallWeClearDisplay = true;           //Clear screen if Line# = 1, else don't
+            writeDisplay(dataIn, 2, CENTRE_HOR, lineNumber, shallWeClearDisplay, drawScreen);
             dataIn = "";
         }
         
         else if (dataIn.startsWith("DSP",0))
         {
             //full direct access to pixels
-            //DSP(xCursor, yCursor, text, fontSize, colour clearDisp)
+            //DSP(xCursor, yCursor, text, fontSize, colour clearDisp, drawScreen)
             int xCurDelim = dataIn.indexOf(',') + 1;
             int yCurDelim = dataIn.indexOf(',', xCurDelim + 1) + 1;
             int textDelim = dataIn.indexOf(',', yCurDelim + 1) + 1;
             int fontDelim = dataIn.indexOf(',', textDelim + 1) + 1;
             int colrDelim = dataIn.indexOf(',', fontDelim + 1) + 1;
             int cDspDelim = dataIn.indexOf(',', colrDelim + 1) + 1;
+            int dDspDelim = dataIn.indexOf(',', cDspDelim + 1) + 1;
     
-            Serial.print("Strings are : ");
-            Serial.print(dataIn.substring(xCurDelim, yCurDelim-1)+" ");
-            Serial.print(dataIn.substring(yCurDelim, textDelim-1)+" ");
-            Serial.print(dataIn.substring(textDelim, fontDelim-1)+" ");
-            Serial.print(dataIn.substring(fontDelim, colrDelim-1)+" ");
-            Serial.print(dataIn.substring(colrDelim, cDspDelim-1)+" ");
-            Serial.println(dataIn.substring(cDspDelim));
+//            Serial.print("Strings are : ");
+//            Serial.print(dataIn.substring(xCurDelim, yCurDelim-1)+" ");
+//            Serial.print(dataIn.substring(yCurDelim, textDelim-1)+" ");
+//            Serial.print(dataIn.substring(textDelim, fontDelim-1)+" ");
+//            Serial.print(dataIn.substring(fontDelim, colrDelim-1)+" ");
+//            Serial.print(dataIn.substring(colrDelim, cDspDelim-1)+" ");
+//            Serial.println(dataIn.substring(cDspDelim));
            
             hCursor         = (dataIn.substring(xCurDelim, yCurDelim-1)).toInt();
             vCursor         = (dataIn.substring(yCurDelim, textDelim-1)).toInt();
             String text     = (dataIn.substring(textDelim, fontDelim-1));
             int fontSize    = (dataIn.substring(fontDelim, colrDelim-1)).toInt();
             int colour      = (dataIn.substring(colrDelim, cDspDelim-1)).toInt();
-            bool clearDisp  = (dataIn.substring(colrDelim)).toInt();
-            writeDSPdisplay(hCursor, vCursor, text, fontSize, colour, clearDisp);
+            bool clearDisp  = (dataIn.substring(cDspDelim, dDspDelim-1)).toInt();
+            bool drawScreen = (dataIn.substring(dDspDelim)).toInt();
+            writeDSPdisplay(hCursor, vCursor, text, fontSize, colour, clearDisp, drawScreen);
     
             dataIn = "";
         }
         
         else if (dataIn.startsWith("LED",0))
         {
-            Serial.print("LED command = ");
-            Serial.print(dataIn);
+            //Serial.print("LED command = ");
+            //Serial.print(dataIn);
             
             int RedDelim    = dataIn.indexOf(',') + 1;
             int GreenDelim  = dataIn.indexOf(',', RedDelim   + 1) + 1;
@@ -81,13 +92,13 @@ void processWiFi()
             bool Green  = (dataIn.substring(GreenDelim, BlueDelim-1)).toInt();
             bool Blue   = (dataIn.substring(BlueDelim)).toInt();
             
-            Serial.print(" : ");
-            Serial.print(Red);
-            Serial.print(",");
-            Serial.print(Green);
-            Serial.print(",");
-            Serial.print(Blue);
-            Serial.println(".");
+//            Serial.print(" : ");
+//            Serial.print(Red);
+//            Serial.print(",");
+//            Serial.print(Green);
+//            Serial.print(",");
+//            Serial.print(Blue);
+//            Serial.println(".");
 
             rgbLED(Red, Green, Blue);
 
@@ -96,7 +107,12 @@ void processWiFi()
 
         else if (dataIn.startsWith("OTA",0))
         {
+            #ifdef RMT_MODE
+            irTx.stopIR();
+            irRx.stopIR();
+            #else
             lazerTagReceive.enableIRIn(false);
+            #endif
             
             Serial.println("\n-----\nOTA message recv'd\n-----\n");
             //up to here.......
@@ -121,9 +137,11 @@ void processWiFi()
             Serial.print("\tpwd =\t");
             Serial.println(EEPROM.readString(PSWD_OFFSET));
 
-            writeDisplay("U/G mode",   2, CENTRE_HOR, 1, true);
-            writeDisplay("selected",   2, CENTRE_HOR, 2, false);
-            writeDisplay("RESTARTING", 1, CENTRE_HOR, 7, false);
+            writeDisplay("U/G mode",   2, CENTRE_HOR, 1,  true, false);
+            writeDisplay("selected",   2, CENTRE_HOR, 2, false, false);
+            writeDisplay("RESTARTING", 1, CENTRE_HOR, 7, false,  true);
+            String otaText = "OTA," + ssidString + "," + pswdString;
+            client.println(otaText);
             delay(1000);
             dataIn = "";
             
@@ -136,10 +154,17 @@ void processWiFi()
             Serial.print("Reply to Ping");
             String pongText = "PONG," + pingText;
             client.println(pongText);
-            writeDisplay("PING",   2, CENTRE_HOR, 1, true);
-            writeDisplay("Reply",  2, CENTRE_HOR, 2, false);
-            writeDisplay(pingText, 1, CENTRE_HOR, 7, false);
+            writeDisplay("PING",   2, CENTRE_HOR, 1,  true, false);
+            writeDisplay("Reply",  2, CENTRE_HOR, 2, false, false);
+            writeDisplay(pingText, 1, CENTRE_HOR, 7, false,  true);
             dataIn = "";
+        }
+        else if (dataIn.startsWith("HEART",0))
+        {
+            //Serial.println("*** HeartBeat arrived ***");
+            client.println("H-B-Ack");
+            dataIn = "";
+            
         }
         else if (dataIn.startsWith("ESP_RESTART",0))
         {
@@ -149,6 +174,7 @@ void processWiFi()
         
         else 
         {
+            Serial.println("ERROR: Empty WiFi Message");
             dataIn = "";
         }
     }
