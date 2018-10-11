@@ -28,12 +28,19 @@ void sendLttoIR(String fullDataString)
     #ifdef  RMT_FAST_MODE
         if(expectingNonP2packet)
         {
+            static int counter = 1;
             char     _type = fullDataString.charAt(0);
             uint16_t _data = fullDataString.substring(1,delimiterPosition).toInt();
             if(_type == 'P' && _data == 2 )
             {
-                Serial.println("Dumping Host packet");
+                Serial.print("Dumping Host packet - Count =");
+                Serial.println(counter++);
                 fullDataString = "";
+                if(counter >= 5)
+                {
+                    expectingNonP2packet = false;
+                    counter = 1;
+                }
                 return;
             }
         }

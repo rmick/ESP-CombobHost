@@ -12,17 +12,44 @@ float BatteryVoltage()
     //
     //  Vout = 0.107142 * Vin
     
-    float Vin = analogRead(BATT_VOLTS);
-    float Vout = (R2/(R1+R2))*Vin;
-    Vout = Vin * .0107;
+    unsigned int adcValue = analogRead(BATT_VOLTS);
+    //Serial.print("ADC reading is ");
+    //Serial.println(adcValue);
+    float dividedVoltage = (adcValue * 3.3) / 1023.0;
+    //Serial.print("Input  voltage is ");
+    //Serial.println(dividedVoltage);
+    //Serial.print("Battery voltage should be ");
+    float calculatedVoltage = dividedVoltage / (5000.0/(1200.0+5000.0));
+    //Serial.println(calculatedVoltage * 5.000);
 
-//    Serial.println("Battery Voltage");
-//    Serial.print("Vin :");
-//    Serial.print(Vin);
-//    Serial.print("\tVout");
-//    Serial.println(Vout);
+    return round(((calculatedVoltage * 5.000) *10) /10.0);
+
     
-    return Vout;
+    float Vout = (R2/(R1+R2))*adcValue;
+
+
 }
 
-
+bool checkBattery()
+{
+    static bool result = true;
+    if(millis() - batteryTestTimer > 2000)
+    {
+        batteryTestTimer = millis();
+        
+        if(BatteryVoltage() < 3.5)
+        {
+            rgbLED(1,0,0);
+            writeDisplay("Replace",   2, CENTRE_HOR, 2, true,  true);
+            writeDisplay("Batteries", 2, CENTRE_HOR, 3, false, true);
+            writeDisplay("Volts = " + String(BatteryVoltage()), 1, CENTRE_HOR, 8, false, true);
+            Serial.println("***** FLAT BATTERY *****");
+            result = false;
+        }
+        else
+        {
+            result = true;
+        }
+    }
+    return result;
+}

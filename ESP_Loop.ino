@@ -4,6 +4,21 @@ void loop()
     //WARNING............
     // Dont put any code here, as it will not run if connected to Wifi.
 
+    if(!checkBattery())
+    {
+        return;
+    }
+    else
+    {
+        static unsigned long timeSinceLast = millis();
+        if(timeSinceLast - millis() > 1000)
+        {
+            writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, false);
+            writeDisplay("Battery = " + String(BatteryVoltage()) + " v", 1, CENTRE_HOR, 8, false, true);
+            rgbLED(0,0,1);
+        }  
+    }
+
     if(!digitalRead(BUTTON))
         {
                 
@@ -47,7 +62,9 @@ void loop()
         //TCP connection established           
         while (client.connected())
         {
-            //THIS IS THE REAL MAIN LOOP
+//THIS IS THE REAL MAIN LOOP
+
+            if(!checkBattery()) return;
 
             unsigned long currentTime = micros();
             static unsigned long lastWiFiMessage = millis();

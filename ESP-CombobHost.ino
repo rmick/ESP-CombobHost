@@ -12,8 +12,8 @@
 #define         RMT_MODE
 #define         RMT_FAST_MODE
 
-#define         PROTO               // Disable before building for Ben/Release
-#define         BUILD_NUMBER        9991.10    // 1810.08  9991.10
+//#define         PROTO               // Disable before building for Ben/Release
+#define         BUILD_NUMBER        1810.11    // 1810.10     1.11
 
 
 //#define       DEBUG_LOCAL   //N.B. this can cause the LCD screen to go blank due to code in setIrReceivingState()
@@ -44,6 +44,7 @@ int             analogInput             = 0;
 float           batteryVolts            = 0;
 bool            isConnected             = false;
 unsigned long   lastHostTime            = millis();
+unsigned long   batteryTestTimer        = millis();
 
 
 //debug
@@ -114,8 +115,9 @@ int             eepromAddress           = 0;
 #define         HARDWARE_VERSION        1
 #define         OTA_MODE_OFFSET         201
 #define         OTA_COUNT               205
-#define         PSWD_OFFSET             10
-#define         SSID_OFFSET             50
+#define         SSID_OFFSET             10
+#define         PSWD_OFFSET             50
+
 
 //Combobulator Hardware
 #ifdef PROTO
@@ -123,8 +125,8 @@ int             eepromAddress           = 0;
 #else    
     #define     RED_LED                 14
 #endif
-#define         GREEN_LED               27
-#define         BLUE_LED                26
+#define         GREEN_LED               26
+#define         BLUE_LED                27
 #define         BATT_VOLTS              34
 #define         BUTTON                  0
 
@@ -174,11 +176,12 @@ void setup()
     ledcWrite(1,0); //Force the LED off, just in case!
 
     //Initiliase the Combobulator Hardware
-    pinMode(RED_LED,    INPUT_PULLDOWN);
-    pinMode(GREEN_LED,  INPUT_PULLDOWN);    
-    pinMode(BLUE_LED,   INPUT_PULLDOWN);
+    pinMode(RED_LED,    OUTPUT);
+    pinMode(GREEN_LED,  OUTPUT);    
+    pinMode(BLUE_LED,   OUTPUT);
     pinMode(BATT_VOLTS, INPUT);
     
+    analogReadResolution(10);
     
     //Set up EEPROM
     if (!EEPROM.begin(EEPROM_SIZE))
@@ -188,6 +191,9 @@ void setup()
     else
     {
         Serial.println("EEPROM initiliased");
+        Serial.print("\t_____________________________________\n\n\t******* Hardware Revision = ");
+        Serial.print((char)EEPROM.readByte(HARDWARE_VERSION));
+        Serial.println(" *******\n\t_____________________________________\n");
 
         otaCount = EEPROM.readByte(OTA_COUNT);
         Serial.print("otaCount = ");
@@ -359,15 +365,15 @@ void setup()
         writeDisplay("DeBug Build", 1, CENTRE_HOR, 7, false, true);
         delay(1500);
        #endif
-        
     
-//        //Show Battery Voltage
-//        display.clearDisplay();
-//        writeDisplay("Battery =", 2, CENTRE_HOR, 2, true);
-//        writeDisplay(String(BatteryVoltage()) + " v", 2, CENTRE_HOR, 3, false);
-//        delay(500);
+        //Show Battery Voltage
+        display.clearDisplay();
+        writeDisplay("Battery =",                       2, CENTRE_HOR, 2, true, false);
+        writeDisplay(String(BatteryVoltage()) + " v",   2, CENTRE_HOR, 3, false, true);
+        delay(500);
 
-        writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, true);
+        writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, false);
+        writeDisplay("Battery =" + String(BatteryVoltage()) + " v", 1, CENTRE_HOR, 8, false, true);
         rgbLED(0,0,1);
 
         //IR config
