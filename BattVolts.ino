@@ -22,7 +22,7 @@ float BatteryVoltage()
     float calculatedVoltage = dividedVoltage / (5000.0/(1200.0+5000.0));
     //Serial.println(calculatedVoltage * 5.000);
 
-    return round(((calculatedVoltage * 5.000) *10) /10.0);
+    return (((calculatedVoltage * 5.000) *10) /10.0);
 
     
     float Vout = (R2/(R1+R2))*adcValue;
@@ -37,7 +37,7 @@ bool checkBattery()
     {
         batteryTestTimer = millis();
         
-        if(BatteryVoltage() < 3.5)
+        if(BatteryVoltage() < 3.0)
         {
             rgbLED(1,0,0);
             writeDisplay("Replace",   2, CENTRE_HOR, 2, true,  true);
@@ -49,6 +49,7 @@ bool checkBattery()
         else
         {
             result = true;
+            rgbLED(0,0,0);
         }
     }
     return result;

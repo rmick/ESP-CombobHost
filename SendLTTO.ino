@@ -47,7 +47,7 @@ void sendLttoIR(String fullDataString)
     
         irTx.sendLttoIR(fullDataString);
         delay (150);
-        rgbLED(0,1,0);
+        rgbLED(0,0,0);
     #else
         while(fullDataString.length() > 0)
         {

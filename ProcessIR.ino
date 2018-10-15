@@ -108,8 +108,8 @@ void setIrReceivingState (bool state)
             Serial.println("STOP");
         }
         receivingData = state;
-        if (state == true)  digitalWrite(LED_PIN, HIGH);
-        else                digitalWrite(LED_PIN,  LOW);
+        if (state == true)  rgbLED(1,1,0);      //digitalWrite(LED_PIN, HIGH);
+        else                rgbLED(0,0,0);       //digitalWrite(LED_PIN,  LOW);
 
         //irDataIndicator(state, ASTERISK_RX);
 

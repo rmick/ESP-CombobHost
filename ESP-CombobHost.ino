@@ -12,8 +12,7 @@
 #define         RMT_MODE
 #define         RMT_FAST_MODE
 
-//#define         PROTO               // Disable before building for Ben/Release
-#define         BUILD_NUMBER        1810.11    // 1810.10     1.11
+#define         BUILD_NUMBER        1810.13    // 1810.10     1.11
 
 
 //#define       DEBUG_LOCAL   //N.B. this can cause the LCD screen to go blank due to code in setIrReceivingState()
@@ -45,6 +44,7 @@ float           batteryVolts            = 0;
 bool            isConnected             = false;
 unsigned long   lastHostTime            = millis();
 unsigned long   batteryTestTimer        = millis();
+unsigned long   timeSinceLastBattCheck  = millis();
 
 
 //debug
@@ -67,13 +67,8 @@ bool            processingMessage       = false;
 //IR Library
 #define         TYPE_LAZERTAG_BEACON    6000
 #define         TYPE_LAZERTAG_TAG       3000
-#define         RX_PIN                  17
-
-#ifdef PROTO
-    #define     TX_PIN                  14
-#else    
-    #define     TX_PIN                  12
-#endif    
+#define         RX_PIN                  17   
+#define         TX_PIN                  12 
 
 //GameHosting
 #define         ANNOUNCE_GAME_INTERVAL  1500
@@ -119,16 +114,23 @@ int             eepromAddress           = 0;
 #define         PSWD_OFFSET             50
 
 
-//Combobulator Hardware
-#ifdef PROTO
-    #define     RED_LED                 12
-#else    
-    #define     RED_LED                 14
-#endif
+//Combobulator Hardware  
+#define         RED_LED                 14
 #define         GREEN_LED               26
 #define         BLUE_LED                27
 #define         BATT_VOLTS              34
 #define         BUTTON                  0
+#define         RGB_BRIGHTNESS          5
+#define         OLED_RESET              16
+    
+//LED cWrite Setup
+int irFreq = 38000;
+int ledFreq = 5000;
+int ledChannel = 1;
+int redChannel = 2;
+int greenChannel = 3;
+int blueChannel = 4;
+int resolution = 8;
 
 // S3 Bucket Config
 String          otaHost                 = "combobulator.s3.ap-southeast-2.amazonaws.com";
@@ -144,44 +146,50 @@ void setup()
 {
     //Setup
     Serial.begin(250000);
-    //Serial.setDebugOutput(true);
     delay(100);
     Serial.println("\n");
     Serial.println("The Combobulator is now running........\n");
-    Serial.print("Build:");
-    Serial.println(BUILD_NUMBER);
+    Serial.print("Build:"); Serial.println(BUILD_NUMBER);
    #ifdef DEBUG_LOCAL
     Serial.println("DeBug Build");
    #endif 
     Serial.println("\n");
-    pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, LOW);
-    pinMode(BUTTON, INPUT);
-    pinMode(TX_PIN, OUTPUT);
+
+   //Initiliase the Combobulator Hardware
+    pinMode     (RED_LED,    OUTPUT );
+    pinMode     (GREEN_LED,  OUTPUT );    
+    pinMode     (BLUE_LED,   OUTPUT );
+    pinMode     (BATT_VOLTS, INPUT  );
+    pinMode     (LED_PIN,    OUTPUT );
+    digitalWrite(LED_PIN,    LOW    );
+    pinMode     (BUTTON,     INPUT  );
+    pinMode     (TX_PIN,     OUTPUT );
+    analogReadResolution(10);
 
     //Initialise the OLED screen
-    pinMode(16, OUTPUT); 
-    digitalWrite(16, LOW);                      // set GPIO16 low to reset OLED 
-    delay(50); 
-    digitalWrite(16, HIGH);                     // while OLED is running, must set GPIO16 to high 
-    display.begin(SH1106_SWITCHCAPVCC, 0x3C);   // initialize with the I2C addr 0x3C
+    pinMode     (OLED_RESET, OUTPUT); 
+    digitalWrite(OLED_RESET, LOW);                      // set GPIO16 low to reset OLED 
+    delay       (50); 
+    digitalWrite(OLED_RESET, HIGH);                     // while OLED is running, must set GPIO16 to high 
+    display.begin(SH1106_SWITCHCAPVCC, 0x3C);           // initialize with the I2C addr 0x3C
     display.setTextColor(WHITE, BLACK);
 
     //LED cWrite Setup
-    int freq = 38000;
-    int ledChannel = 1;
-    int resolution = 8;
-    ledcAttachPin(TX_PIN, ledChannel);
-    ledcSetup(ledChannel, freq, resolution);
-    ledcWrite(1,0); //Force the LED off, just in case!
-
-    //Initiliase the Combobulator Hardware
-    pinMode(RED_LED,    OUTPUT);
-    pinMode(GREEN_LED,  OUTPUT);    
-    pinMode(BLUE_LED,   OUTPUT);
-    pinMode(BATT_VOLTS, INPUT);
+    ledcAttachPin(TX_PIN,    ledChannel);
+    ledcAttachPin(RED_LED,   redChannel);
+    ledcAttachPin(GREEN_LED, greenChannel);
+    ledcAttachPin(BLUE_LED,  blueChannel);
     
-    analogReadResolution(10);
+    ledcSetup(ledChannel,    irFreq,    resolution);
+    ledcSetup(redChannel,    ledFreq,   resolution);
+    ledcSetup(greenChannel,  ledFreq,   resolution);
+    ledcSetup(blueChannel,   ledFreq,   resolution);
+    
+    //Force the LEDs off
+    ledcWrite(ledChannel,    0); 
+    ledcWrite(redChannel,    0); 
+    ledcWrite(greenChannel,  0); 
+    ledcWrite(blueChannel,   0);
     
     //Set up EEPROM
     if (!EEPROM.begin(EEPROM_SIZE))
@@ -346,11 +354,12 @@ void setup()
         Serial.println(WiFi.getMode());
         WiFi.softAP(ssid, password);
         server.begin();
-    
-        IPAddress local_IP(192, 168, 4, 42);
-        IPAddress gateway(192, 168, 4, 1);
-        IPAddress subnet(255, 255, 0, 0);
-        WiFi.config(local_IP, gateway, subnet);
+
+        WiFi.softAPConfig(IPAddress(192, 168, 42, 42), IPAddress(192, 168, 42, 42), IPAddress(255, 255, 0, 0));
+        //IPAddress local_IP(2, 42, 42, 42);
+        //IPAddress gateway(2,  42, 42, 1);
+        //IPAddress subnet(255, 0, 0, 0);
+        //WiFi.config(local_IP, gateway, subnet);
         WiFi.begin();
 
         // Splash the Logo
@@ -365,16 +374,10 @@ void setup()
         writeDisplay("DeBug Build", 1, CENTRE_HOR, 7, false, true);
         delay(1500);
        #endif
-    
-        //Show Battery Voltage
-        display.clearDisplay();
-        writeDisplay("Battery =",                       2, CENTRE_HOR, 2, true, false);
-        writeDisplay(String(BatteryVoltage()) + " v",   2, CENTRE_HOR, 3, false, true);
-        delay(500);
 
-        writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, false);
-        writeDisplay("Battery =" + String(BatteryVoltage()) + " v", 1, CENTRE_HOR, 8, false, true);
-        rgbLED(0,0,1);
+        //writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, false);
+        //writeDisplay("Battery =" + String(BatteryVoltage()) + " v", 1, CENTRE_HOR, 8, false, true);
+  //rgbLED(0,0,1);
 
         //IR config
         #ifdef RMT_MODE

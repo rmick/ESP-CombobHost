@@ -6,7 +6,7 @@
     int         _interDelay     = 25;
     static int  _checkSumCalc   = 0;
 
-    rgbLED(1,0,1);
+    //rgbLED(1,0,1);
     
     //Send Header
     switch (type)
@@ -78,7 +78,7 @@
 #endif
 
     if(type != 'C') delay(_interDelay);
-    rgbLED(0,1,0);
+    //rgbLED(0,1,0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -10,12 +10,12 @@ void loop()
     }
     else
     {
-        static unsigned long timeSinceLast = millis();
-        if(timeSinceLast - millis() > 1000)
+        if(millis() - timeSinceLastBattCheck > 2500)
         {
             writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, false);
             writeDisplay("Battery = " + String(BatteryVoltage()) + " v", 1, CENTRE_HOR, 8, false, true);
-            rgbLED(0,0,1);
+            //rgbLED(0,0,1);
+            timeSinceLastBattCheck = millis();
         }  
     }
 
@@ -57,14 +57,15 @@ void loop()
         Serial.println("Connected");
 
         writeDisplay("Online", 2, CENTRE_HOR, CENTRE_VER, true, true);
-        rgbLED(0,1,0);
+        //rgbLED(0,1,0);
 
         //TCP connection established           
         while (client.connected())
         {
 //THIS IS THE REAL MAIN LOOP
 
-            if(!checkBattery()) return;
+            // This breaks hosting if the batteries dip from high current draw
+            //if(!checkBattery()) return;
 
             unsigned long currentTime = micros();
             static unsigned long lastWiFiMessage = millis();
@@ -136,7 +137,7 @@ void loop()
             client.stop();
             Serial.println("\n\tDisconnected");
             writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, true);
-            rgbLED(0,0,1);
+            //rgbLED(0,0,1);
             firstTimeThru = false;
         }
     }
