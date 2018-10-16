@@ -4,6 +4,9 @@ const char  CHECKSUM    = 'C';
 const char  TAG         = 'T';
 const char  BEACON      = 'Z';    
 
+
+#ifndef RMT_MODE
+
 void processIR(decode_results *results)
 {
     
@@ -99,6 +102,8 @@ void processIR(decode_results *results)
     }
 }
 
+#endif
+
 void setIrReceivingState (bool state)
 {
         rxTimer = millis();
@@ -118,8 +123,3 @@ void setIrReceivingState (bool state)
             else                            writeDisplay(fullRxMessage, 2, LEFT_HOR,   1,          true, true);
         #endif
 }
-
-
-
-
-

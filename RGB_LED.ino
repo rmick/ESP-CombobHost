@@ -1,8 +1,8 @@
 void rgbLED(bool Red, bool Green, bool Blue)
 {
-    if(Red)     ledcWrite(redChannel,   RGB_BRIGHTNESS); else ledcWrite(redChannel,   0);
-    if(Green)   ledcWrite(greenChannel, RGB_BRIGHTNESS); else ledcWrite(greenChannel, 0);
-    if(Blue)    ledcWrite(blueChannel,  RGB_BRIGHTNESS); else ledcWrite(blueChannel,  0);
+    if(Red)     ledcWrite(redChannel,   ledIntensity); else ledcWrite(redChannel,   0);
+    if(Green)   ledcWrite(greenChannel, ledIntensity); else ledcWrite(greenChannel, 0);
+    if(Blue)    ledcWrite(blueChannel,  ledIntensity); else ledcWrite(blueChannel,  0);
 
     return;
     
