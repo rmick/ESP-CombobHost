@@ -68,4 +68,3 @@ void sendLttoIR(String fullDataString)
         rgbLED(0,1,0);
     #endif
 }
-

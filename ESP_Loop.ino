@@ -10,7 +10,8 @@ void loop()
     }
     else
     {
-        if(millis() - timeSinceLastBattCheck > 2500)
+        static unsigned long timeSinceLast = millis();
+        if(millis() - timeSinceLast > 2500)
         {
             writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, false);
             writeDisplay("Battery = " + String(BatteryVoltage()) + " v", 1, CENTRE_HOR, 8, false, true);
@@ -64,7 +65,7 @@ void loop()
         {
 //THIS IS THE REAL MAIN LOOP
 
-            // This breaks hosting if the batteries dip from high current draw
+            //This breaks hosting if the batteries dip from high current draw
             //if(!checkBattery()) return;
 
             unsigned long currentTime = micros();
@@ -171,4 +172,3 @@ void loop()
 //        lastHostTime = millis();
 //    }
 }
-

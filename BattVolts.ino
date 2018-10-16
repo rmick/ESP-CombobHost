@@ -22,7 +22,7 @@ float BatteryVoltage()
     float calculatedVoltage = dividedVoltage / (5000.0/(1200.0+5000.0));
     //Serial.println(calculatedVoltage * 5.000);
 
-    return (((calculatedVoltage * 5.000) *10) /10.0);
+    return ((calculatedVoltage * 5.000) *10) /10.0;
 
     
     float Vout = (R2/(R1+R2))*adcValue;
