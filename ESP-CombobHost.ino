@@ -23,6 +23,18 @@
 #define         OLED_RESET              16
 Adafruit_SH1106 display                 (OLED_SDA, OLED_SCL);
 
+//Display constants
+#define         LEFT_HOR                11
+#define         CENTRE_HOR              12
+#define         RIGHT_HOR               13
+#define         CENTRE_VER              0
+#define         CHAR_WIDTH              6
+#define         CHAR_HEIGHT             8
+#define         ASTERISK_RX             0
+#define         ASTERISK_TX             112
+#define         ASTERISK_FLASH_TIME     50
+#define         LED_INTENSITY           5
+
 //WiFi
 const char      *ssid                   = "Combobulator";
 const char      *password               = "Lasertag42";
@@ -45,7 +57,6 @@ float           batteryVolts            = 0;
 bool            isConnected             = false;
 unsigned long   lastHostTime            = millis();
 unsigned long   batteryTestTimer        = millis();
-unsigned long   timeSinceLastBattCheck  = millis();
 #define         SERIAL_BUFFER_SIZE      64
 String          fullRxMessage           = "";
 byte            rxCalculatedCheckSum    = 0;
@@ -54,24 +65,14 @@ bool            receivingData           = false;
 unsigned long   rxTimer                 = millis();
 unsigned long   rxTimeOutInterval       = 1200;
 char            serialBuffer            [SERIAL_BUFFER_SIZE];
-unsigned int    ledIntensity            = 5;
+unsigned int    ledIntensity            = LED_INTENSITY;
+#define         LOW_BATT_VOLTS          2.5
 
 //debug
 #define         START_DEBUG             1
 #define         STOP_DEBUG              0
 unsigned long   howLongDidThisTake      = micros();
 bool            processingMessage       = false;
-
-//Display constants
-#define         LEFT_HOR                11
-#define         CENTRE_HOR              12
-#define         RIGHT_HOR               13
-#define         CENTRE_VER              0
-#define         CHAR_WIDTH              6
-#define         CHAR_HEIGHT             8
-#define         ASTERISK_RX             0
-#define         ASTERISK_TX             112
-#define         ASTERISK_FLASH_TIME     50
 
 //IR Library
 #define         TYPE_LAZERTAG_BEACON    6000
@@ -374,9 +375,8 @@ void setup()
         delay(1500);
        #endif
 
-        writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, false);
-        writeDisplay("Battery =" + String(BatteryVoltage()) + " v", 1, CENTRE_HOR, 8, false, true);
-        //rgbLED(0,0,1);
+        //writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, false);
+        //displayBatteryVoltage();
 
         //IR config
         #ifdef RMT_MODE

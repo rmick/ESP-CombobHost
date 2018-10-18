@@ -10,12 +10,11 @@ void loop()
     }
     else
     {
-        static unsigned long timeSinceLast = millis();
-        if(millis() - timeSinceLast > 2500)
+        static unsigned long timeSinceLastBattCheck = millis();
+        if(millis() - timeSinceLastBattCheck > 2500)
         {
-            writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, false);
-            writeDisplay("Battery = " + String(BatteryVoltage()) + " v", 1, CENTRE_HOR, 8, false, true);
-            //rgbLED(0,0,1);
+            writeDisplay("Offline",                      2, CENTRE_HOR, CENTRE_VER, true, false);
+            displayBatteryVoltage();
             timeSinceLastBattCheck = millis();
         }  
     }
@@ -65,8 +64,7 @@ void loop()
         {
 //THIS IS THE REAL MAIN LOOP
 
-            //This breaks hosting if the batteries dip from high current draw
-            //if(!checkBattery()) return;
+            checkBattery();
 
             unsigned long currentTime = micros();
             static unsigned long lastWiFiMessage = millis();
