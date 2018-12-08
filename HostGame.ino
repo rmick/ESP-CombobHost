@@ -3,11 +3,14 @@
 
 // need a way to abort it when running.
 
-int hostPlayerToGame(int playerNumber, int _gameType, int _gameID, int _gameLength, int _health, int _reloads, int _shields, int _megaTags, int _flags1, int _flags2, int _interval)
+uint16_t    announceGameInterval    = 1500;
+bool        isLtarMode              = true;
+
+int hostPlayerToGame(int playerNumber, int _gameType, int _gameID, int _gameLength, int _health, int _reloads, int _shields, int _megaTags, int _flags1, int _flags2, int _flags3 = 0)
 {
     Serial.print("hostPlayerToGame");
     
-    uint16_t _taggerID = -1;    // -1 means failed !
+    int16_t _taggerID = -1;    // -1 means failed !
 
     if(cancelHosting) isHostingActive = false;
     
@@ -21,4 +24,3 @@ int hostPlayerToGame(int playerNumber, int _gameType, int _gameID, int _gameLeng
 
     return _taggerID;
 }
-

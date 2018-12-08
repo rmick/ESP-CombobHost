@@ -28,8 +28,8 @@ float BatteryVoltage()
     int   roundedVoltage    = calculatedVoltage * 10;
     float voltage = roundedVoltage / 10.0;
 
-    client.println("BATT,"  + String(voltage));
-    Serial.println("BATT: " + String(voltage));
+    client.println("BATT,"  + String(voltage) + ",@");
+    Serial.println("BATT: " + String(voltage) + ",@");
     return voltage;
     
 }

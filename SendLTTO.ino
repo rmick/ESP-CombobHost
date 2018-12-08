@@ -31,23 +31,44 @@ void sendLttoIR(String fullDataString)
             static int counter = 1;
             char     _type = fullDataString.charAt(0);
             uint16_t _data = fullDataString.substring(1,delimiterPosition).toInt();
-            if(_type == 'P' && _data == 2 )
+            if(_type == 'P')
             {
-                Serial.print("Dumping Host packet - Count =");
-                Serial.println(counter++);
-                fullDataString = "";
-                if(counter >= 5)
+                switch(_data)
                 {
-                    expectingNonP2packet = false;
-                    counter = 1;
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 129:
+                        Serial.print("Dumping Host packet P");
+                        Serial.print(_data);
+                        Serial.print(" - Count =");
+                        Serial.println(counter++);
+                        fullDataString = "";
+                        if(counter >= 5)
+                        {
+                            expectingNonP2packet = false;
+                            counter = 1;
+                        }
+                        break;
+                    default:   
+                      
+                        break;
                 }
-                return;
             }
         }
-    
         irTx.sendLttoIR(fullDataString);
+        //Serial.print("Sending IR:"); Serial.println(fullDataString);
         delay (150);
         rgbLED(0,0,0);
+
     #else
         while(fullDataString.length() > 0)
         {

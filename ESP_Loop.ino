@@ -4,6 +4,35 @@ void loop()
     //WARNING............
     // Dont put any code here, as it will not run if connected to Wifi.
 
+    if(!digitalRead(BUTTON))
+    {
+    #ifndef RMT_MODE    
+        lazerTagReceive.enableIRIn(false);
+    #endif    
+        if(EEPROM.readByte(OTA_MODE_OFFSET) == false)
+        {
+            Serial.print("Button Pressed - set Update mode");
+            writeDisplay("U/G mode",             2, CENTRE_HOR, 1,  true, false);
+            writeDisplay("selected",             2, CENTRE_HOR, 2, false, false);
+            writeDisplay("Press Reset to start", 1, CENTRE_HOR, 7, false,  true);
+        
+            EEPROM.writeByte(OTA_MODE_OFFSET, true);
+            EEPROM.commit();
+            delay(1000);
+        }
+        else
+        {
+            Serial.print("Button Pressed - cancel Update mode");
+            writeDisplay("U/G mode",             2, CENTRE_HOR, 1,  true, false);
+            writeDisplay("cancelled",            2, CENTRE_HOR, 2, false, false);
+            writeDisplay("Press Reset to start", 1, CENTRE_HOR, 7, false,  true);
+        
+            EEPROM.writeByte(OTA_MODE_OFFSET, false);
+            EEPROM.commit();
+            delay(1000);
+        }  
+    }
+        
     if(!checkBattery())
     {
         return;
@@ -19,36 +48,7 @@ void loop()
         }  
     }
 
-    if(!digitalRead(BUTTON))
-        {
-                
-        #ifndef RMT_MODE    
-            lazerTagReceive.enableIRIn(false);
-        #endif    
-            if(EEPROM.readByte(OTA_MODE_OFFSET) == false)
-            {
-                Serial.print("Button Pressed - set Update mode");
-                writeDisplay("U/G mode",             2, CENTRE_HOR, 1,  true, false);
-                writeDisplay("selected",             2, CENTRE_HOR, 2, false, false);
-                writeDisplay("Press Reset to start", 1, CENTRE_HOR, 7, false,  true);
-            
-                EEPROM.writeByte(OTA_MODE_OFFSET, true);
-                EEPROM.commit();
-                delay(1000);
-            }
-            else
-            {
-                Serial.print("Button Pressed - cancel Update mode");
-                writeDisplay("U/G mode",             2, CENTRE_HOR, 1,  true, false);
-                writeDisplay("cancelled",            2, CENTRE_HOR, 2, false, false);
-                writeDisplay("Press Reset to start", 1, CENTRE_HOR, 7, false,  true);
-            
-                EEPROM.writeByte(OTA_MODE_OFFSET, false);
-                EEPROM.commit();
-                delay(1000);
-            }
-            
-        }
+    
 
     //Listen for client messages
     client = server.available(); 
@@ -59,14 +59,14 @@ void loop()
         writeDisplay("Online", 2, CENTRE_HOR, CENTRE_VER, true, true);
         //rgbLED(0,1,0);
 
-        //TCP connection established           
+        //TCP connection established   
+
+        //Serial.print("Client Status = "); Serial.println(client.status());        
         while (client.connected())
         {
 //THIS IS THE REAL MAIN LOOP
 
-            checkBattery();
-
-            unsigned long currentTime = micros();
+            unsigned long        currentTime     = micros();
             static unsigned long lastWiFiMessage = millis();
             
             //Check for any IR messages received and action them  
@@ -98,7 +98,7 @@ void loop()
 //            }
 //            }
             
-
+            checkBattery();
 
             //Check for any WiFi messages received and action them
             if (receivingData == false && client.available())
@@ -119,15 +119,14 @@ void loop()
                }
             }
             
-            if ((millis() - lastWiFiMessage) > 5000)
+            if ((millis() - lastWiFiMessage) > 10000)
             {
                 Serial.println("TCP comms timeout");
-                writeDisplay("Restarting", 2, CENTRE_HOR, CENTRE_VER, true, true);
-                //lastWiFiMessage = millis();
-                delay(1500);
-                ESP.restart();
-            }
-            
+                writeDisplay("Comms Lost", 2, CENTRE_HOR, CENTRE_VER, true, true);
+                lastWiFiMessage = millis();
+                delay(500);
+                client.stop();
+            }   
         }
         //TCP connection has been terminated
         static bool firstTimeThru = true;
@@ -136,7 +135,7 @@ void loop()
             client.stop();
             Serial.println("\n\tDisconnected");
             writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, true);
-            //rgbLED(0,0,1);
+            rgbLED(0,0,1);
             firstTimeThru = false;
         }
     }

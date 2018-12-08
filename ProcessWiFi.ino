@@ -16,13 +16,20 @@ void processWiFi()
         
         else if (dataIn.startsWith("ltto"))
         {
-            if (receivingData == true && dataIn.startsWith("ltto:P02"))
+            if (receivingData == true)
             {
-                Serial.print("Dumping P02 packet");
-                dataIn = "";
-                return;
+                if (dataIn.startsWith("ltto:P02") || dataIn.startsWith("ltto:P03") || dataIn.startsWith("ltto:P04") ||
+                    dataIn.startsWith("ltto:P05") || dataIn.startsWith("ltto:P06") || dataIn.startsWith("ltto:P07") ||
+                    dataIn.startsWith("ltto:P08") || dataIn.startsWith("ltto:P09") || dataIn.startsWith("ltto:P10") ||
+                    dataIn.startsWith("ltto:P11") || dataIn.startsWith("ltto:P12") || dataIn.startsWith("ltto:P129") )
+                {
+                    Serial.print("Dumping P02-P12/P129 packet");
+                    dataIn = "";
+                    return;
+                }
             }
-            Serial.println("\nLTTO_TX: " + dataIn);
+            
+            //Serial.println("\nLTTO_TX: " + dataIn);
             int stringLength = dataIn.length();
             #ifdef RMT_MODE
                 txCheckSum = dataIn.substring( (stringLength - 7), (stringLength-3) );
@@ -140,7 +147,7 @@ void processWiFi()
             writeDisplay("U/G mode",   2, CENTRE_HOR, 1,  true, false);
             writeDisplay("selected",   2, CENTRE_HOR, 2, false, false);
             writeDisplay("RESTARTING", 1, CENTRE_HOR, 7, false,  true);
-            String otaText = "OTA," + ssidString + "," + pswdString;
+            String otaText = "OTA," + ssidString + "," + pswdString + ",@";
             client.println(otaText);
             delay(1000);
             dataIn = "";
@@ -152,7 +159,7 @@ void processWiFi()
         {
             String pingText = (dataIn.substring(dataIn.indexOf(',') + 1));
             Serial.print("Reply to Ping");
-            String pongText = "PONG," + pingText;
+            String pongText = "PONG," + pingText + ",@";
             client.println(pongText);
             writeDisplay("PING",   2, CENTRE_HOR, 1,  true, false);
             writeDisplay("Reply",  2, CENTRE_HOR, 2, false, false);
@@ -162,7 +169,7 @@ void processWiFi()
         else if (dataIn.startsWith("HEART",0))
         {
             //Serial.println("*** HeartBeat arrived ***");
-            client.println("H-B-Ack");
+            client.println("H-B-Ack,@");
             dataIn = "";
             
         }
@@ -183,5 +190,3 @@ void processWiFi()
         dataIn += tcpChar;
     }
 }
-
-

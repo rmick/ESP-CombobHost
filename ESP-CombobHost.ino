@@ -12,8 +12,7 @@
 #define         RMT_MODE
 #define         RMT_FAST_MODE
 
-#define         BUILD_NUMBER        1810.16   // 1810.10     1.11
-
+#define         BUILD_NUMBER        1812.08  //1.13
 
 //#define       DEBUG_LOCAL   //N.B. this can cause the LCD screen to go blank due to code in setIrReceivingState()
 
@@ -63,7 +62,7 @@ byte            rxCalculatedCheckSum    = 0;
 int             rxErrorCount            = 0;
 bool            receivingData           = false;
 unsigned long   rxTimer                 = millis();
-unsigned long   rxTimeOutInterval       = 1200;
+unsigned long   rxTimeOutInterval       = 2000;     // In case of no end of packet, this times out Rx after the length of longest possible message.
 char            serialBuffer            [SERIAL_BUFFER_SIZE];
 unsigned int    ledIntensity            = LED_INTENSITY;
 #define         LOW_BATT_VOLTS          2.5
@@ -280,10 +279,6 @@ void setup()
             delay(500);
 
             if ( (millis() - timeOut) > 7500) reTry = true;
-            Serial.print("TimeOut = ");
-            Serial.print(timeOut);
-            Serial.print(" : ");
-            Serial.println(millis() - timeOut);
 
             if(!digitalRead(BUTTON))
             {

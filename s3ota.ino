@@ -166,7 +166,7 @@ void execOTA() {
 
     // If yes, begin
     if (canBegin) {
-      Serial.println("Begin OTA. This may take 2 - 5 mins to complete. Things might be quite for a while.. Patience!");
+      Serial.println("Begin OTA. This may take 2 - 5 mins to complete. Things might be quiet for a while. Patience!");
       writeDisplay("Updating", 2, CENTRE_HOR, 1,  true, false);
       writeDisplay("- WAIT -", 2, CENTRE_HOR, 3, false, false);
       writeDisplay("2-3 mins", 2, CENTRE_HOR, 4, false,  true);
@@ -284,4 +284,3 @@ void execOTA() {
       ....
  * 
  */
-
