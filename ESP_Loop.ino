@@ -33,14 +33,10 @@ void loop()
         }  
     }
         
-    if(!checkBattery())
-    {
-        return;
-    }
-    else
+    if(checkBattery())
     {
         static unsigned long timeSinceLastBattCheck = millis();
-        if(millis() - timeSinceLastBattCheck > 2500)
+        if(millis() - timeSinceLastBattCheck > 5000)
         {
             writeDisplay("Offline",                      2, CENTRE_HOR, CENTRE_VER, true, false);
             displayBatteryVoltage();
@@ -75,7 +71,7 @@ void loop()
             codeLength = irRx.readIR(IRdataRx,sizeof(IRdataRx));
             if (codeLength > 3)  //ignore any short codes
             {
-                if( !isSendingActive)   setIrReceivingState(true);
+                //if( !isSendingActive)   setIrReceivingState(true);
                 processRmtIr();   
             }   
 #else
@@ -88,16 +84,6 @@ void loop()
             }
 #endif
 
-//            //Announce Game
-//            if(isHostingActive)
-//            {
-//                if((millis() - lastHostTime) > ANNOUNCE_GAME_INTERVAL)
-//            {
-//                //hostPlayerToGame();
-//                lastHostTime = millis();
-//            }
-//            }
-            
             checkBattery();
 
             //Check for any WiFi messages received and action them
@@ -158,14 +144,4 @@ void loop()
         display.clearDisplay();
         display.display();
     #endif
-
-
-//    //Announce Game
-//    if((millis() - lastHostTime) > ANNOUNCE_GAME_INTERVAL)
-//    {
-//        //hostPlayerToGame();
-//        Serial.print("HostPlayerToGame - ");
-//        Serial.println(millis());
-//        lastHostTime = millis();
-//    }
 }

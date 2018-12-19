@@ -169,7 +169,7 @@ void processWiFi()
         else if (dataIn.startsWith("HEART",0))
         {
             //Serial.println("*** HeartBeat arrived ***");
-            client.println("H-B-Ack,@");
+            //client.println("H-B-Ack,@");
             dataIn = "";
             
         }
@@ -177,6 +177,12 @@ void processWiFi()
         {
             Serial.print("ESP_RESTART triggered");
             ESP.restart();
+        }
+
+        else if (dataIn.startsWith("DISCONNECT",0))
+        {
+            Serial.print("Disconnecting client");
+            client.stop();
         }
         
         else 

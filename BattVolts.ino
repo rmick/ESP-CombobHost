@@ -19,7 +19,7 @@ float BatteryVoltage()
     {
         sampleSum += analogRead(BATT_VOLTS);
         sampleCount++;
-        delay(5);
+        delay(2);
     }
     unsigned int adcValue = sampleSum/sampleCount;
     
@@ -29,7 +29,7 @@ float BatteryVoltage()
     float voltage = roundedVoltage / 10.0;
 
     client.println("BATT,"  + String(voltage) + ",@");
-    Serial.println("BATT: " + String(voltage) + ",@");
+    Serial.println("BATT: " + String(voltage));
     return voltage;
     
 }
@@ -38,7 +38,7 @@ bool checkBattery()
 {
     static int oldLedIntensity = LED_INTENSITY;
     static bool result = true;
-    if(millis() - batteryTestTimer > 2000)
+    if(millis() - batteryTestTimer > 5000)
     {
         batteryTestTimer = millis();
         

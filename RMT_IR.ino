@@ -7,6 +7,19 @@ void processRmtIr()
         //Set flags to skip sending hosting packets if receiving data
         if(_incomingMessageType == PACKET)
         {
+            
+            
+            
+            
+            
+            if( !isSendingActive) setIrReceivingState(true);
+
+
+
+
+
+
+            
             switch(_incomingMessageData)
             {
                 case 16:        //0x10 Request to Join (reply to Px hosting packet)
@@ -103,11 +116,13 @@ void processRmtIr()
                 fullRxMessage += _incomingMessageData;
                 fullRxMessage += ",@";
                 //Serial.print("processRmtIr:: RxMessage = ");Serial.println(fullRxMessage);
+
+                //Dont send to Host app, as it floods the network and blocks incoming comms (rehost)!
                 //client.println(fullRxMessage);
                 //server.write(client.read());
         //client.write(fullRxMessage, fullRxMessage.length() );
                 
-                //Dont send to Host app, as it floods the network and blocks cincoming omms!
+                
                 fullRxMessage = "";
                 setIrReceivingState(false);
                 break;

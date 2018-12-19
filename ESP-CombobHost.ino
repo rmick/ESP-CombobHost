@@ -1,4 +1,4 @@
-#include <WiFi.h>
+ #include <WiFi.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <Update.h>
@@ -12,7 +12,7 @@
 #define         RMT_MODE
 #define         RMT_FAST_MODE
 
-#define         BUILD_NUMBER        1812.08  //1.13
+#define         BUILD_NUMBER       1.13     //  1812.19  //1.13
 
 //#define       DEBUG_LOCAL   //N.B. this can cause the LCD screen to go blank due to code in setIrReceivingState()
 
