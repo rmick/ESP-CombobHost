@@ -32,32 +32,23 @@ void loop()
             delay(1000);
         }  
     }
-        
-    if(checkBattery())
-    {
-        static unsigned long timeSinceLastBattCheck = millis();
-        if(millis() - timeSinceLastBattCheck > 5000)
-        {
-            writeDisplay("Offline",                      2, CENTRE_HOR, CENTRE_VER, true, false);
-            displayBatteryVoltage();
-            timeSinceLastBattCheck = millis();
-        }  
-    }
 
-    
+    checkBattery(true);
 
     //Listen for client messages
     client = server.available(); 
     if (client) 
     {
-        Serial.println("Connected");
-
-        writeDisplay("Online", 2, CENTRE_HOR, CENTRE_VER, true, true);
-        //rgbLED(0,1,0);
-
-        //TCP connection established   
-
-        //Serial.print("Client Status = "); Serial.println(client.status());        
+        static bool firstTime = true;
+        if (firstTime)
+        {
+            Serial.println("Connected");
+            writeDisplay("Online", 2, CENTRE_HOR, CENTRE_VER, true, true);
+            firstTime = false;
+            //rgbLED(0,1,0);
+        }
+        
+        //TCP connection established     
         while (client.connected())
         {
 //THIS IS THE REAL MAIN LOOP
@@ -84,7 +75,7 @@ void loop()
             }
 #endif
 
-            checkBattery();
+            checkBattery(false);
 
             //Check for any WiFi messages received and action them
             if (receivingData == false && client.available())
@@ -115,20 +106,12 @@ void loop()
             }   
         }
         //TCP connection has been terminated
-        static bool firstTimeThru = true;
-        if (firstTimeThru)
-        {
-            client.stop();
-            Serial.println("\n\tDisconnected");
-            writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, true);
-            rgbLED(0,0,1);
-            firstTimeThru = false;
-        }
+        Serial.println("\n\tDisconnected");
+        writeDisplay("Offline", 2, CENTRE_HOR, CENTRE_VER, true, true);
+        rgbLED(0,0,1);
     }
 
     //TODO: Set a timer, if nothing happens for 2 minutes, power down.
-
-
     
     #ifdef DEBUG_LOCAL
         #ifdef RMT_MODE

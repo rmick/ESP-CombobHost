@@ -176,18 +176,33 @@ void processWiFi()
         else if (dataIn.startsWith("ESP_RESTART",0))
         {
             Serial.print("ESP_RESTART triggered");
+            dataIn = "";
             ESP.restart();
         }
 
         else if (dataIn.startsWith("DISCONNECT",0))
         {
             Serial.print("Disconnecting client");
-            client.stop();
+            dataIn = "";
+            client.stop();   
         }
+
+        else if (dataIn.startsWith("FIRMWARE_REPORT",0))
+        {
+            String buildNumber = "FIRMWARE:";
+            buildNumber += (String)BUILD_NUMBER;
+            buildNumber += ",@";
+            Serial.print("Reporting Firwmare Version = ");
+            Serial.println(buildNumber);
+            client.println(buildNumber);
+            dataIn = "";
+        }
+
         
         else 
         {
-            Serial.println("ERROR: Empty WiFi Message");
+            Serial.print("ERROR: Empty WiFi Message");
+            Serial.println(dataIn);
             dataIn = "";
         }
     }

@@ -1,3 +1,37 @@
+bool checkBattery(bool updateDisplay)
+{
+    static int oldLedIntensity = LED_INTENSITY;
+    static bool result = true;
+    if(millis() - batteryTestTimer > 5000)
+    {
+        batteryTestTimer = millis();
+
+        float battVolts = BatteryVoltage();
+        
+        if(battVolts < LOW_BATT_VOLTS)
+        {
+            oldLedIntensity = ledIntensity;
+            ledIntensity = 1;
+            rgbLED(1,0,0);
+            if (updateDisplay)
+            {
+                writeDisplay("Replace",                             2, CENTRE_HOR, 2, true, false);
+                writeDisplay("Batteries",                           2, CENTRE_HOR, 3, false, true);
+                displayBatteryVoltage(battVolts);
+            }
+            result = false;
+        }
+        else
+        {
+            result = true;
+            ledIntensity = oldLedIntensity;
+            if (updateDisplay)  displayBatteryVoltage(battVolts);
+            rgbLED(0,0,0);
+        }
+    }
+    return result;
+}
+
 
 float BatteryVoltage()
 {
@@ -34,37 +68,9 @@ float BatteryVoltage()
     
 }
 
-bool checkBattery()
+void displayBatteryVoltage(float volts)
 {
-    static int oldLedIntensity = LED_INTENSITY;
-    static bool result = true;
-    if(millis() - batteryTestTimer > 5000)
-    {
-        batteryTestTimer = millis();
-        
-        if(BatteryVoltage() < LOW_BATT_VOLTS)
-        {
-            oldLedIntensity = ledIntensity;
-            ledIntensity = 1;
-            rgbLED(1,0,0);
-            writeDisplay("Replace",                             2, CENTRE_HOR, 2, true,  true);
-            writeDisplay("Batteries",                           2, CENTRE_HOR, 3, false, true);
-            displayBatteryVoltage();
-            result = false;
-        }
-        else
-        {
-            result = true;
-            ledIntensity = oldLedIntensity;
-            rgbLED(0,0,0);
-        }
-    }
-    return result;
-}
-
-void displayBatteryVoltage()
-{
-    String battVolts = String(BatteryVoltage());
+    String battVolts = String(volts);
     battVolts.remove(battVolts.length()-1, 1);
     writeDisplay("Battery = " + battVolts + "v", 1, CENTRE_HOR, 8,  false, true);
 }

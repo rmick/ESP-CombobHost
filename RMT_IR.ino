@@ -7,18 +7,7 @@ void processRmtIr()
         //Set flags to skip sending hosting packets if receiving data
         if(_incomingMessageType == PACKET)
         {
-            
-            
-            
-            
-            
             if( !isSendingActive) setIrReceivingState(true);
-
-
-
-
-
-
             
             switch(_incomingMessageData)
             {
@@ -40,7 +29,6 @@ void processRmtIr()
                     break;
                 case 135:       //0x87 Host LTAR Release message
                     expectingNonP2packet = false;
-                
             }
             
         }
