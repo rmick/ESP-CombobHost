@@ -35,7 +35,22 @@ void loop()
 
     checkBattery(true);
 
-    //Listen for client messages
+    listenForLazerswarm();
+
+    if (lazerSwarmMode)
+    {
+        //Process IR via ESP32_RMT_IR_LTTO library
+        codeLength = irRx.readIR(IRdataRx, sizeof(IRdataRx));
+        if (codeLength > 3)  //ignore any short codes
+        {
+            rgbLED(1, 1, 1);
+            //if( !isSendingActive)   setIrReceivingState(true);
+            processRmtIr();
+        }
+    }
+   
+
+    //Listen for WiFi client messages
     client = server.available(); 
     if (client) 
     {
@@ -45,6 +60,7 @@ void loop()
             Serial.println("Connected");
             writeDisplay("Online", 2, CENTRE_HOR, CENTRE_VER, true, true);
             firstTime = false;
+            dataIn = "";
             //rgbLED(0,1,0);
         }
         

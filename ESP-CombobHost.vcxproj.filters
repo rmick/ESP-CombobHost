@@ -16,14 +16,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ESP-CombobHost.ino" />
+    <None Include="BattVolts.ino" />
+    <None Include="DeBug.ino" />
     <None Include="ESP_Loop.ino" />
     <None Include="IRcontrol.ino" />
+    <None Include="LazerSwarm.ino" />
     <None Include="OLEDdisplay.ino" />
-    <None Include="otaUpdate.ino" />
     <None Include="ProcessIR.ino" />
     <None Include="ProcessWiFi.ino" />
-    <None Include="SendLazerSwarm.ino" />
+    <None Include="RGB_LED.ino" />
+    <None Include="RMT_IR.ino" />
+    <None Include="s3ota.ino" />
     <None Include="SendLTTO.ino" />
+    <None Include="Setup.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.ESP-CombobHost.vsarduino.h">

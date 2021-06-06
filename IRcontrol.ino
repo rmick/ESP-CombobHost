@@ -1,12 +1,16 @@
  
+/*
  void IRcontrol(char type, uint16_t message)
 {   
-    Serial.println("IRcontrol called");
+     /*Serial.print("IRcontrol Type = ");
+     Serial.print(type);
+     Serial.println(message);
+
     int         _msgLength      = 0;
     int         _interDelay     = 25;
     static int  _checkSumCalc   = 0;
 
-    //rgbLED(0,1,0);
+    rgbLED(1,1,1);
     
     //Send Header
     switch (type)
@@ -23,6 +27,7 @@
     // 25ms - All others
 
     case 'P':
+        rgbLED(1, 0, 0);
         _msgLength = 9;
         _interDelay = 25;
         _checkSumCalc = message;
@@ -32,6 +37,7 @@
         break;
 
     case 'D':
+        rgbLED(0, 1, 0);
         _msgLength = 8;
         _interDelay = 25;
         _checkSumCalc = _checkSumCalc + message;
@@ -41,9 +47,10 @@
         break;
 
     case 'C':
+        rgbLED(0, 0, 1);
         _msgLength = 9;
         _interDelay = 0;                    // Set to Zero, otherwise Rx misses messages.
-        message = _checkSumCalc;            // Overwrite the message with the calculated checksum
+        //message = _checkSumCalc;            // Overwrite the message with the calculated checksum
         message = message | 256;            // Set the required 9th MSB bit to 1 to indicate it is a checksum
         PulseIR(3);
         delayMicroseconds (6000);
@@ -72,13 +79,14 @@
     {
         delayMicroseconds (2000);
         PulseIR(bitRead(message, bitCount)+1);        // the +1 is to convert 0/1 data into 1/2mS pulses.
+        rgbLED(0, 0, 0);
     }
 #ifndef RMT_MODE
     lazerTagReceive.resume();
 #endif
 
     if(type != 'C') delay(_interDelay);
-    //rgbLED(0,1,0);
+    rgbLED(0,0,0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -115,3 +123,5 @@ void Interruptor()
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
+*/
+

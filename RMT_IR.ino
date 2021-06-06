@@ -12,6 +12,7 @@ void processRmtIr()
             switch(_incomingMessageData)
             {
                 case 16:        //0x10 Request to Join (reply to Px hosting packet)
+                    rgbLED(1, 0, 0);
                     Serial.println("Received P16 reply packet");
                     expectingNonP2packet = true;
                     break;
@@ -57,6 +58,7 @@ void processRmtIr()
                 if(_incomingMessageType != 'C')
                 {
                     fullRxMessage += ",";
+                    if (lazerSwarmMode)     replyLazerSwarm(_incomingMessageType, _incomingMessageData);
                 }
                 else        // it is a checksum message
                 {
@@ -75,6 +77,7 @@ void processRmtIr()
                             fullRxMessage += ",@";
                             client.println(fullRxMessage);
                             Serial.print("processRmtIr:: RxMessage = ");Serial.println(fullRxMessage);
+                            if (lazerSwarmMode)     replyLazerSwarm(_incomingMessageType, _incomingMessageData);
                         }
                     #else
                         //Terminate the packet and send it to WiFi
@@ -96,6 +99,7 @@ void processRmtIr()
                 client.println(fullRxMessage);
                 fullRxMessage = "";
                 setIrReceivingState(false);
+                if (lazerSwarmMode)     replyLazerSwarm(_incomingMessageType, _incomingMessageData);
                 break;
             
             case BEACON:

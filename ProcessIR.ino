@@ -1,10 +1,3 @@
-const char  PACKET      = 'P';
-const char  DATA        = 'D';
-const char  CHECKSUM    = 'C';
-const char  TAG         = 'T';
-const char  BEACON      = 'Z';
-const char  LTAR_BEACON = 'E'; 
-
 
 #ifndef RMT_MODE
 //

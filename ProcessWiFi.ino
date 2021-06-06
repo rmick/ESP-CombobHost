@@ -2,19 +2,20 @@
 void processWiFi()
 {   
     char tcpChar = client.read();
-    
+
     if (tcpChar == '\n')
     {
-        if      (dataIn.startsWith("CMD 10", 0))
-        {
-            Serial.println("\n\tL-Swarm_TX: " + dataIn);
-            char irMessageIn[SERIAL_BUFFER_SIZE];
-            dataIn.toCharArray(irMessageIn, SERIAL_BUFFER_SIZE);
-            sendLazerSwarmIR(irMessageIn);      //Send to IR
-            dataIn = "";
-        }
-        
-        else if (dataIn.startsWith("ltto"))
+//      Lets be honest, there is no way that Lazerswarm USB is coming in over WiFi, so this code will never get called
+//        if      (dataIn.startsWith("CMD 10", 0))
+//        {
+//            Serial.println("\n\tL-Swarm_TX: " + dataIn);
+//            char irMessageIn[SERIAL_BUFFER_SIZE];
+//            dataIn.toCharArray(irMessageIn, SERIAL_BUFFER_SIZE);
+//            sendLazerSwarmIR(irMessageIn);      //Send to IR
+//            dataIn = "";
+//        }
+       
+        if (dataIn.startsWith("ltto"))
         {
             if (receivingData == true)
             {

@@ -1,3 +1,19 @@
+
+//  July 2020
+// For unknown reasons the Combobulator Arduino code cannot be compiled and run - it crashes every 5-10 seconds
+// To programme units for sale, use the ESPTOOL as per the instructions below.
+
+// ESPTOOL - Copy and paste the following commands into a terminal window.
+//  cd /Users/Richie/Library/Python/2.7/bin
+//  python esptool.py --port /dev/tty.SLAB_USBtoUART erase_flash
+//  python esptool.py --port /dev/tty.SLAB_USBtoUART write_flash 0x0 CombobV11.bin
+//  (There is a copy of ComboV144.bin in Dropbox/Laser Tag/Combobulator)
+
+        //  F.Y.I. - The CombobV114.bin file (as used above) was created by the following (using a known working donor Combobulator).
+        //  cd /Users/Richie/Library/Python/2.7/bin
+        //  ls /dev/tty* | grep usb
+        //  python esptool.py -p /dev/tty.SLAB_USBtoUART -b 115200 read_flash 0 0x400000 CombobV114xxx.bin
+
 #include <WiFi.h>
 #include <SPI.h>
 #include <Wire.h>
@@ -12,7 +28,7 @@
 #define         RMT_MODE
 #define         RMT_FAST_MODE
 
-#define         BUILD_NUMBER       1.14     //  1901.09  //1.14
+#define         BUILD_NUMBER       2106.02     //  1.15
 
 //#define       DEBUG_LOCAL   //N.B. this can cause the LCD screen to go blank due to code in setIrReceivingState()
 
@@ -33,6 +49,14 @@ Adafruit_SH1106 display                 (OLED_SDA, OLED_SCL);
 #define         ASTERISK_TX             112
 #define         ASTERISK_FLASH_TIME     50
 #define         LED_INTENSITY           5
+
+//LTTO data types
+const char  PACKET                      = 'P';
+const char  DATA                        = 'D';
+const char  CHECKSUM                    = 'C';
+const char  TAG                         = 'T';
+const char  BEACON                      = 'Z';
+const char  LTAR_BEACON                 = 'E';
 
 //WiFi
 const char      *ssid                   = "Combobulator";
@@ -64,7 +88,9 @@ bool            receivingData           = false;
 unsigned long   rxTimer                 = millis();
 unsigned long   rxTimeOutInterval       = 2000;     // In case of no end of packet, this times out Rx after the length of longest possible message.
 char            serialBuffer            [SERIAL_BUFFER_SIZE];
+int             serialBufferPosition    = 0;
 unsigned int    ledIntensity            = LED_INTENSITY;
+bool            lazerSwarmMode          = false;
 #define         LOW_BATT_VOLTS          2.5
 
 //debug
@@ -142,7 +168,7 @@ uint8_t         otaCount                = 0;
 void setup()
 {
     //Setup
-    Serial.begin(250000);
+    Serial.begin(115200);           // This baud rate is required for Lazerswarm compatibility.
     delay(100);
     Serial.println("\n");
     Serial.println("The Combobulator is now running........\n");
