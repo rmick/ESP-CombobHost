@@ -1,0 +1,23 @@
+C:\Users\Richie\AppData\Local\Temp\VMBuilds\ESP-CombobHost\esp32_heltec_wifi_kit_32\Debug\SPI\SPI.cpp.o: \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5\libraries\SPI\src\SPI.cpp \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5\libraries\SPI\src\SPI.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/stdlib.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/machine/ieeefp.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/_ansi.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/newlib.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/sys/config.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/sys/features.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/esp32/xtensa/config/core-isa.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/sys/reent.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/_ansi.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/sys/_types.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/machine/_types.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/machine/_default_types.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/sys/lock.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/sys/cdefs.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/machine/stdlib.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/alloca.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5\variants\heltec_wifi_kit_32/pins_arduino.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/stdint.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5/tools/sdk/include/newlib/sys/_intsup.h \
+ C:\Users\Richie\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.5\cores\esp32/esp32-hal-spi.h
